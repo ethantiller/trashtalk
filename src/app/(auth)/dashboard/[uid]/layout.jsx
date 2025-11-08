@@ -18,9 +18,8 @@ export default async function UserLayout({ children, params }) {
         redirect("/login");
     }
 
-
+    const { uid: requestedUid } = await params;
     const loggedInUid = decodedToken.uid;
-    const requestedUid = params.uid;
 
     if (requestedUid && loggedInUid && requestedUid !== loggedInUid) {
         redirect(`/dashboard/${loggedInUid}`);
