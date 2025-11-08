@@ -8,6 +8,7 @@ export default function ImageUploadPage() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [displayText, setDisplayText] = useState('');
+  const [userInput, setUserInput] = useState('');
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -111,7 +112,13 @@ export default function ImageUploadPage() {
     return result;
   }
 
-
+    async function HandleFinalSubmit() {
+    if (!userInput) return;
+    setDisplayText(userInput);    
+    // try {
+    //   const formData = new FormData();
+    //   formData.append('message', userInput);   
+    }
  
 
   return (
@@ -242,9 +249,50 @@ export default function ImageUploadPage() {
             ) : (
               <p className="text-zinc-400">Upload an image to see the output...</p>
             )}
+
+          </div>
+            
+{/* Input area - fixed at bottom */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              
+              placeholder="Enter your text here..."
+              className="flex-1 bg-zinc-800 text-white border border-zinc-700 rounded-md px-4 py-3 focus:outline-none focus:border-zinc-600"
+            />
+            <button
+              onClick={HandleFinalSubmit}
+              className="bg-white text-black font-medium px-6 py-3 rounded-md hover:bg-zinc-200 transition-colors"
+            >
+              Submit
+            </button>
+         
+       
+
+
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+// {/* Right side - Text content */}
+//         <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 flex flex-col">
+//           {/* Content area - takes up remaining space */}
+//           <div className="flex-1 overflow-y-auto mb-4">
+//             <h2 className="text-2xl font-bold text-white mb-4">
+//               Output
+//             </h2>
+//             <div className="space-y-4 text-zinc-300">
+//               {displayText ? (
+//                 <p className="text-xl font-semibold text-white">{displayText}</p>
+//               ) : (
+//                 <p className="text-zinc-400">Upload an image to see the output...</p>
+//               )}
+//             </div>
+//           </div>
+
+          
