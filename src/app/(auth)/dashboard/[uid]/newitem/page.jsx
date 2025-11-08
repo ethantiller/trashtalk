@@ -1,28 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
-import { stringify } from 'querystring';
+import Image from 'next/image';
 
 export default function ImageUploadPage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [displayText, setDisplayText] = useState('');
-
-  //api call function
-  async function GETRESPONSE(imageName) {
-        try {
-            const response = await fetch(`/api/getclassification?imageName=${encodeURIComponent(imageName)}`);
-            const data = await response.json();
-            console.log('API response:', data);
-            return stringify(data.wastePredictions);
-        } catch (error) {
-            console.error('Error fetching classification:', error);
-            return 'Error fetching classification';
-        }   
-    } 
-
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -76,32 +61,58 @@ export default function ImageUploadPage() {
 
 
 
-////////////////////////////////
-
-//    handleSubmit function is what we focus on
-
-/////////////////////////////////////
-  const handleSubmit = () => {
-
-    if (selectedImage) {
-        var imageName = selectedImage.name; 
-        var RESPONSE = GETRESPONSE(imageName)
-        setDisplayText(RESPONSE)
+  // Upload and classify image
+  async function handleSubmit(e) {
+    e?.preventDefault();
+    if (!selectedImage) return;
+    setDisplayText('Classifying...');
+    try {
+      const result = await uploadImage(selectedImage);
+      if (result.success) {
+        const formatted = Array.isArray(result.wastePredictions)
+          ? result.wastePredictions
+              .map(p => `${p.label}: ${(p.score * 100).toFixed(1)}%`)
+              .join(', ')
+          : 'No predictions';
+        setDisplayText(formatted);
+      } else {
+        setDisplayText(`Error: ${result.error || 'Unknown error'}`);
+      }
+    } catch (err) {
+      console.error('Classification request failed:', err);
+      setDisplayText(`Request failed: ${err.message}`);
     }
   }
 
-    async function uploadImage(file) {
-        const formData = new FormData();
-        formData.append('image', file);
+  async function uploadImage(file) {
+    const formData = new FormData();
+    formData.append('image', file);
 
-        const response = await fetch('/api/classification', {
-            method: 'POST',
-            body: formData,
-        });
+    const response = await fetch('/api/classification', {
+      method: 'POST',
+      body: formData,
+    });
 
-        const result = await response.json();
-        return result;
+    const contentType = response.headers.get('content-type') || '';
+    if (!response.ok) {
+      let errorPayload;
+      if (contentType.includes('application/json')) {
+        try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
+      } else {
+        errorPayload = await response.text();
+      }
+      console.error('API error response:', errorPayload);
+      throw new Error(`API returned ${response.status}`);
     }
+
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      throw new Error(`Unexpected non-JSON response: ${text.slice(0,100)}...`);
+    }
+
+    const result = await response.json();
+    return result;
+  }
 
 
  
@@ -190,10 +201,12 @@ export default function ImageUploadPage() {
             ) : (
               <div className="space-y-4">
                 <div className="relative rounded-lg overflow-hidden bg-zinc-800">
-                  <img
+                  <Image
                     src={previewUrl}
                     alt="Preview"
                     className="w-full h-auto max-h-64 object-contain"
+                    width={500}
+                    height={500}
                   />
                 </div>
 

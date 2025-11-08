@@ -1,7 +1,4 @@
-import { pipeline } from '@huggingface/transformers';
-import { NextResponse} from 'next/server';
-
-let classification = null;
+import { NextResponse } from 'next/server';
 
 export async function POST(request) {
     const formData = await request.formData();
@@ -15,25 +12,43 @@ export async function POST(request) {
     }
     
     const arrayBuffer = await image.arrayBuffer();
-    const huggingFaceRequest = Buffer.from(arrayBuffer);
 
     try {
-        if (!classification) {
-            classification = await pipeline('image-classification', 'watersplash/waste-classification');
+        console.log('Calling Hugging Face Inference API...');
+        console.log('Image type:', image.type);
+        
+        const response = await fetch(
+            'https://vqf0lxlyfzvpmi4y.us-east-1.aws.endpoints.huggingface.cloud',
+            {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${process.env.HUGGINGFACE_API_KEY}`,
+                    'Content-Type': image.type || 'image/jpeg',
+                },
+                body: arrayBuffer,
+            }
+        );
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error(`API Error (${response.status}):`, errorText);
+            throw new Error(`Hugging Face API error (${response.status}): ${errorText || response.statusText}`);
         }
 
-        const response = await classification(huggingFaceRequest);
+        const predictions = await response.json();
+        console.log('Classification result:', predictions);
 
         return NextResponse.json({
             success: true,
-            wastePredictions: response
+            wastePredictions: predictions
         });
 
     } catch (error) {
+        console.error('Classification error:', error);
         return NextResponse.json({
             success: false,
-            error: 'Classification failed'
+            error: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
         }, { status: 500 });
     }
-
 }
