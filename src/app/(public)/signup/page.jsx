@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { auth, googleProvider } from '@/app/lib/firebase';
 import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { setCookie } from 'cookies-next';
-import { createUserProfile } from '@/app/lib/firebaseFunctions/firebaseDB/firebaseDBAuth';
+import { createUserProfile } from '@/app/lib/firebaseFunctions/firebaseAuth/firebaseDBAuth';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
