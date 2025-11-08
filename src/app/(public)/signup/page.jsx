@@ -3,17 +3,21 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { auth, googleProvider } from '@/app/lib/firebase';
+import { createUserWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { setCookie } from 'cookies-next';
+import { createUserProfile } from '@/app/lib/firebaseFunctions/firebaseDB/firebaseDBAuth';
 
 export default function SignUpPage() {
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
     email: '',
     password: '',
     confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleChange = (e) => {
     setFormData({
@@ -23,15 +27,51 @@ export default function SignUpPage() {
     setError('');
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
-    setError('');
-    console.log('Form submitted:', formData);
+
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      await createUserProfile(userCredential.user.uid, formData.email);
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+      setCookie('firebaseToken', token, {
+        maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+        path: '/',
+        secure: true,
+        sameSite: 'lax'
+      });
+      router.push(`/dashboard/${user.uid}`);
+    } catch (err) {
+      setError(err.message);
+    }
   };
+
+  const handleGoogleSignup = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      await createUserProfile(result.user.uid, result.user.email);
+      const user = result.user;
+      const token = await user.getIdToken();
+      setCookie('firebaseToken', token, {
+        maxAge: 60 * 60 * 24 * 7, // 7 days in seconds
+        path: '/',
+        secure: true,
+        sameSite: 'lax'
+      });
+      router.push(`/dashboard/${user.uid}`);
+
+    } catch (err) {
+      setError(err.message);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-4">
@@ -44,34 +84,8 @@ export default function SignUpPage() {
             Sign up to get started
           </p>
 
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm text-zinc-300 mb-2">
-                First Name
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleChange}
-                className="w-full bg-black border border-zinc-700 rounded-md px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-transparent"
-                required
-              />
-            </div>
 
-            <div>
-              <label className="block text-sm text-zinc-300 mb-2">
-                Last Name
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleChange}
-                className="w-full bg-black border border-zinc-700 rounded-md px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-transparent"
-                required
-              />
-            </div>
+          <div className="space-y-4">
 
             <div>
               <label className="block text-sm text-zinc-300 mb-2">
@@ -121,9 +135,9 @@ export default function SignUpPage() {
                 id="showPassword"
                 checked={showPassword}
                 onChange={(e) => setShowPassword(e.target.checked)}
-                className="w-4 h-4 bg-black border-zinc-700 rounded focus:ring-2 focus:ring-zinc-600"
+                className="cursor-pointer w-4 h-4 bg-black border-zinc-700 rounded focus:ring-2 focus:ring-zinc-600"
               />
-              <label htmlFor="showPassword" className="ml-2 text-sm text-zinc-300">
+              <label htmlFor="showPassword" className="cursor-pointer ml-2 text-sm text-zinc-300">
                 Show Password
               </label>
             </div>
@@ -136,7 +150,7 @@ export default function SignUpPage() {
 
             <button
               onClick={handleSubmit}
-              className="w-full bg-white text-black font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors"
+              className="cursor-pointer w-full bg-white text-black font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors"
             >
               Continue
             </button>
@@ -154,7 +168,8 @@ export default function SignUpPage() {
 
             <button
               type="button"
-              className="mt-6 w-full bg-white text-gray-700 font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors flex items-center justify-center gap-3"
+              onClick={handleGoogleSignup}
+              className="cursor-pointer mt-6 w-full bg-white text-gray-700 font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors flex items-center justify-center gap-3"
             >
               <Image
                 src="/google-icon.png"
@@ -168,9 +183,12 @@ export default function SignUpPage() {
 
           <p className="mt-6 text-center text-sm text-zinc-400">
             Already have an account?{' '}
-            <Link href="/login" className="text-white hover:underline">
+            <button
+              className='cursor-pointer text-white hover:underline'
+              onClick={() => router.push('/login')}
+            >
               Log in
-            </Link>
+            </button>
           </p>
         </div>
       </div>

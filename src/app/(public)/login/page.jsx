@@ -1,9 +1,12 @@
-
 'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { auth, googleProvider } from '@/app/lib/firebase';
+import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
+import { setCookie } from 'cookies-next';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -12,16 +15,60 @@ export default function LoginPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
+    setError('');
   };
 
-  const handleSubmit = () => {
-    console.log('Login submitted:', formData);
+  const handleSubmit = async () => {
+    try {
+      const userCredential = await signInWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+
+      const user = userCredential.user;
+      const token = await user.getIdToken();
+
+      setCookie('firebaseToken', token, {
+        maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7, // 30 days if rememberMe, else 7 days
+        path: '/',
+        secure: true,
+        sameSite: 'lax'
+      });
+
+      router.push(`/dashboard/${user.uid}`);
+    } catch (err) {
+      console.error('Login error:', err);
+      setError(err.message || 'Failed to log in');
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const user = result.user;
+      const token = await user.getIdToken();
+
+      setCookie('firebaseToken', token, {
+        maxAge: rememberMe ? 60 * 60 * 24 * 30 : 60 * 60 * 24 * 7,
+        path: '/',
+        secure: true,
+        sameSite: 'lax'
+      });
+
+      router.push(`/dashboard/${user.uid}`);
+    } catch (err) {
+      console.error('Google login error:', err);
+      setError(err.message || 'Failed to continue with Google');
+    }
   };
 
   return (
@@ -38,7 +85,7 @@ export default function LoginPage() {
             Log in to your account
           </p>
 
-          <div className="space-y-4">
+          <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSubmit(); }}>
             <div>
               <label className="block text-sm text-zinc-300 mb-2">
                 Email Address
@@ -80,21 +127,40 @@ export default function LoginPage() {
                   Show password
                 </label>
               </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="rememberMe"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 bg-black border-zinc-700 rounded focus:ring-2 focus:ring-zinc-600"
+                />
+                <label htmlFor="rememberMe" className="ml-2 text-sm text-zinc-300">
+                  Remember me
+                </label>
+              </div>
             </div>
 
+            {error && (
+              <div className="text-red-500 text-sm text-center">
+                {error}
+              </div>
+            )}
+
             <button
-              onClick={handleSubmit}
-              className="w-full bg-white text-black font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors"
+              type="submit"
+              className="cursor-pointer w-full bg-white text-black font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors"
             >
               Log in
             </button>
 
             <div className="text-center">
-              <a href="#" className="text-sm text-zinc-400 hover:text-white transition-colors">
+              <a href="#" className="cursor-pointer text-sm text-zinc-400 hover:text-white transition-colors">
                 Forgot password?
               </a>
             </div>
-          </div>
+          </form>
 
           <div className="mt-6">
             <div className="relative">
@@ -108,7 +174,8 @@ export default function LoginPage() {
 
             <button
               type="button"
-              className="mt-6 w-full bg-white text-gray-700 font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors flex items-center justify-center gap-3"
+              onClick={handleGoogleLogin}
+              className="cursor-pointer mt-6 w-full bg-white text-gray-700 font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors flex items-center justify-center gap-3"
             >
               <Image
                 src="/Google.webp"
@@ -122,7 +189,7 @@ export default function LoginPage() {
 
           <p className="mt-6 text-center text-sm text-zinc-400">
             Don't have an account?{' '}
-            <Link href="/signup" className="text-white hover:underline">
+            <Link href="/signup" className="cursor-pointer text-white hover:underline">
               Sign up
             </Link>
           </p>
