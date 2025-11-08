@@ -9,7 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@huggingface/transformers": "^3.7.6",
     "next": "16.0.1",
     "cookies-next": "^6.1.1",
     "firebase": "^12.5.0",
