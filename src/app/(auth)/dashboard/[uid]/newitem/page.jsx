@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useFormState } from 'react-dom';
+import { stringify } from 'querystring';
 
 export default function ImageUploadPage() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -12,10 +13,10 @@ export default function ImageUploadPage() {
   //api call function
   async function GETRESPONSE(imageName) {
         try {
-            // const response = await fetch(`/api/getclassification?imageName=${encodeURIComponent(imageName)}`);
-            // const data = await response.json();
-            // return data.result; // Assuming the API returns { result: "some text" }
-            return "THIS IS TEXT RESPONSE FROM THE API"
+            const response = await fetch(`/api/getclassification?imageName=${encodeURIComponent(imageName)}`);
+            const data = await response.json();
+            console.log('API response:', data);
+            return stringify(data.wastePredictions);
         } catch (error) {
             console.error('Error fetching classification:', error);
             return 'Error fetching classification';

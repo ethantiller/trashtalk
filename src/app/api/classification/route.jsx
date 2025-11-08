@@ -1,4 +1,5 @@
 import { pipeline } from '@huggingface/transformers';
+import { NextResponse} from 'next/server';
 
 let classification = null;
 
@@ -7,7 +8,7 @@ export async function POST(request) {
     const image = formData.get('image');
     
     if (!image) {
-        return Response.json({
+        return NextResponse.json({
             success: false,
             error: 'No image provided'
         }, { status: 400 });
@@ -23,13 +24,13 @@ export async function POST(request) {
 
         const response = await classification(huggingFaceRequest);
 
-        return Response.json({
+        return NextResponse.json({
             success: true,
             wastePredictions: response
         });
 
     } catch (error) {
-        return Response.json({
+        return NextResponse.json({
             success: false,
             error: 'Classification failed'
         }, { status: 500 });
