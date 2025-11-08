@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect } from "react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { app } from "@/lib/firebase";
-import { setCookie } from "cookies-next";
+// import { useEffect } from "react";
+// import { getAuth, onAuthStateChanged } from "firebase/auth";
+// import { app } from "@/lib/firebase";
+// import { setCookie } from "cookies-next";
 
 export default function AuthLayout({ children }) {
 //   useEffect(() => {
