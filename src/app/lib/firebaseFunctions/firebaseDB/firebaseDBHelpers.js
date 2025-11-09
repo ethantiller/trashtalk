@@ -5,28 +5,6 @@ import { doc, setDoc, getDocs, getDoc, deleteDoc, collection } from "firebase/fi
 const USERS_COLLECTION = "users";
 const ITEMS_SUBCOLLECTION = "items";
 
-// itemData should be an object with the following structure:
-// {
-//   id: string, // unique identifier for the item
-//   itemName: string,
-//   itemHash: string,
-//   itemPhoto: string, // URL or path to the photo
-//   itemDescription: string,
-//   itemWinOrLose: string, // e.g., "win" or "lose"
-//   recyclingLocations: [
-//     {
-//       name: string,
-//       lat: number,
-//       long: number,
-//       address: string,
-//       distanceFromAddress: number
-//     }
-//   ],
-//   createdAt: Timestamp or Date,
-//   confidenceRating: number
-// }
-
-
 export async function addItemToUser(userId, itemData) {
   const itemHash = itemData.itemHash;
 

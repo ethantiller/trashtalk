@@ -16,7 +16,6 @@ export default async function UserDashboardPage({ params }) {
   try {
   decodedToken = await getAdminAuth().verifyIdToken(token);
   } catch (err) {
-    console.error("Invalid Firebase token", err);
     redirect("/login");
   }
 

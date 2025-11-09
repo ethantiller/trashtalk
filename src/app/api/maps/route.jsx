@@ -31,7 +31,6 @@ export async function POST(request) {
         });
 
     } catch (error) {
-        console.error('Maps Embed API error:', error);
         return NextResponse.json(
         {
             success: false,

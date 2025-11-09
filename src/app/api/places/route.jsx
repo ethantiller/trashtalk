@@ -9,15 +9,6 @@ export async function POST(request) {
     const radius = parseInt(formData.get('radius'), 10) || 5000;
     const pageSize = parseInt(formData.get('pageSize'), 10) || 5;
 
-    console.log('Places API request:', {
-      textQuery,
-      latitude,
-      longitude,
-      radius,
-      pageSize,
-    });
-
-    // Basic validation before calling Google
     if (!textQuery || isNaN(latitude) || isNaN(longitude)) {
       return NextResponse.json(
         {
@@ -30,7 +21,6 @@ export async function POST(request) {
     }
 
     if (!process.env.GCP_MAPS_API_KEY) {
-      console.error('GCP_MAPS_API_KEY not configured');
       return NextResponse.json(
         {
           success: false,
@@ -55,11 +45,6 @@ export async function POST(request) {
       },
     };
 
-    console.log(
-      'Sending to Google Places API:',
-      JSON.stringify(requestBody, null, 2)
-    );
-
     const response = await fetch(
       'https://places.googleapis.com/v1/places:searchText',
       {
@@ -67,8 +52,6 @@ export async function POST(request) {
         headers: {
           'Content-Type': 'application/json',
           'X-Goog-Api-Key': process.env.GCP_MAPS_API_KEY,
-          // Start with * to confirm wiring; later you can narrow to a specific mask.
-          // Example narrower mask: 'places.displayName,places.formattedAddress,places.location,places.id,places.types'
           'X-Goog-FieldMask': '*',
         },
         body: JSON.stringify(requestBody),
@@ -77,10 +60,6 @@ export async function POST(request) {
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Google Places API error details:');
-      console.error('Status:', response.status);
-      console.error('Status Text:', response.statusText);
-      console.error('Response Body:', errorText);
 
       throw new Error(
         `Google Places API error: ${response.status} ${response.statusText} - ${errorText}`
@@ -88,11 +67,6 @@ export async function POST(request) {
     }
 
     const placesResponse = await response.json();
-    console.log(
-      'Places API success. Found',
-      placesResponse.places?.length || 0,
-      'places'
-    );
 
     const mappedPlaces = (placesResponse.places || [])
       .slice(0, 5)
@@ -108,7 +82,6 @@ export async function POST(request) {
       places: mappedPlaces,
     });
   } catch (error) {
-    console.error('Places API error:', error);
     return NextResponse.json(
       {
         success: false,
