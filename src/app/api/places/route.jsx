@@ -18,7 +18,7 @@ export async function POST(request) {
             }, { status: 500 });
         }
 
-    const { textQuery, latitude, longitude, radius = 5000, pageSize = 5 } = body;
+    const { textQuery, latitude, longitude, radius = 5000, pageSize = 5, rankPreference = "RELEVANCE" } = body;
     try {
     const response = await fetch(
         'https://places.googleapis.com/v1/places:searchText',
@@ -32,7 +32,7 @@ export async function POST(request) {
             body: JSON.stringify({
                 textQuery: textQuery,
                 pageSize: pageSize,
-                rankPreference: "RELEVANCE",
+                rankPreference: rankPreference,
                 locationBias: {
                     circle: {
                         radius: radius,
