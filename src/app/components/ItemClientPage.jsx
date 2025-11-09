@@ -72,7 +72,7 @@ export default function ItemClientPage({ item, uid }){
   `;
 
   return (
-   <div className="h-screen bg-black text-zinc-100 overflow-hidden">
+   <div className="h-screen bg-black text-zinc-100 overflow-hidden" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
   <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
   <main className="h-full px-4 py-8 overflow-hidden">
     <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-8">
