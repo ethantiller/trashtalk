@@ -1,5 +1,5 @@
 import { db } from "../../firebase";
-import { doc, setDoc, getDocs, collection } from "firebase/firestore";
+import { doc, setDoc, getDocs, getDoc, collection } from "firebase/firestore";
 
 
 const USERS_COLLECTION = "users";
@@ -28,41 +28,98 @@ const ITEMS_SUBCOLLECTION = "items";
 
 
 export async function addItemToUser(userId, itemData) {
-  const itemId = itemData.id;
-  const itemDocRef = doc(db, USERS_COLLECTION, userId, ITEMS_SUBCOLLECTION, itemId);
-  await setDoc(itemDocRef, itemData);
+  const itemHash = itemData.itemHash;
+
+  const itemDocRef = doc(
+    db,
+    USERS_COLLECTION,
+    userId,
+    ITEMS_SUBCOLLECTION,
+    itemHash
+  );
+
+  await setDoc(itemDocRef, {
+    itemName: itemData.itemName,
+    itemPhoto: itemData.itemPhoto,
+    itemDescription: itemData.itemDescription,
+    itemWinOrLose: itemData.itemWinOrLose,
+    recyclingLocations: itemData.recyclingLocations,
+    createdAt: itemData.createdAt,
+    confidenceRating: itemData.confidenceRating,
+    userLocation: itemData.userLocation,
+  });
 }
 
 export async function getUserItems(userId) {
-  const itemsCollectionRef = collection(db, USERS_COLLECTION, userId, ITEMS_SUBCOLLECTION);
+  const itemsCollectionRef = collection(
+    db,
+    USERS_COLLECTION,
+    userId,
+    ITEMS_SUBCOLLECTION
+  );
   const itemsSnapshot = await getDocs(itemsCollectionRef);
+  const itemsArray = [];
 
-  const items = itemsSnapshot.docs.map((docSnap) => ({
-    id: docSnap.id,
-    ...docSnap.data(),
-  }));
+  itemsSnapshot.forEach((docSnap) => {
+    const data = docSnap.data();
+    const itemHash = docSnap.id;
 
-  return items;
+    itemsArray.push({
+      id: itemHash,
+      itemHash: itemHash,
+      itemName: data.itemName,
+      itemPhoto: data.itemPhoto,
+      itemDescription: data.itemDescription,
+      itemWinOrLose: data.itemWinOrLose,
+      recyclingLocations: data.recyclingLocations,
+      createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
+      confidenceRating: data.confidenceRating,
+      userLocation: data.userLocation,
+    });
+  });
+
+  return itemsArray;
 }
 
 export async function getItemByHash(userId, itemHash) {
-  const itemsCollectionRef = collection(db, USERS_COLLECTION, userId, ITEMS_SUBCOLLECTION);
-  const itemsSnapshot = await getDocs(itemsCollectionRef);
+  const itemDocRef = doc(
+    db,
+    USERS_COLLECTION,
+    userId,
+    ITEMS_SUBCOLLECTION,
+    itemHash
+  );
+  const snap = await getDoc(itemDocRef);
 
-  for (const docSnap of itemsSnapshot.docs) {
-    const data = docSnap.data();
-    if (data.itemHash === itemHash) {
-      return {
-        id: docSnap.id,
-        ...data,
-      };
-    }
-  }
+  if (!snap.exists()) return null;
 
-  return null; // Item not found
+  const data = snap.data();
+
+  return {
+    [itemHash]: {
+      itemName: data.itemName,
+      itemPhoto: data.itemPhoto,
+      itemDescription: data.itemDescription,
+      itemWinOrLose: data.itemWinOrLose,
+      recyclingLocations: data.recyclingLocations,
+      createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
+      confidenceRating: data.confidenceRating,
+      userLocation: data.userLocation,
+    },
+  };
 }
 
-export async function deleteItemFromUser(userId, itemId) {
-  const itemDocRef = doc(db, USERS_COLLECTION, userId, ITEMS_SUBCOLLECTION, itemId);
+export async function deleteItemFromUser(userId, itemHash) {
+  const itemDocRef = doc(
+    db,
+    USERS_COLLECTION,
+    userId,
+    ITEMS_SUBCOLLECTION,
+    itemHash
+  );
   await deleteDoc(itemDocRef);
 }
