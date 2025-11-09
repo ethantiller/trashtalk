@@ -8,6 +8,7 @@ export default function ImageUploadPage() {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
   const [displayText, setDisplayText] = useState('');
+  const [userInput, setUserInput] = useState('');
 
   const handleImageSelect = (e) => {
     const file = e.target.files[0];
@@ -111,7 +112,32 @@ export default function ImageUploadPage() {
     return result;
   }
 
+  
 
+
+    async function HandleFinalSubmit() {
+    if (!userInput) return;
+    setDisplayText("worked: ");
+
+    const formData = new FormData();
+    formData.append('huggingfaceText', displayText);
+    formData.append('userText', userInput);
+
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      body: formData,
+    });
+    // const contentType = response.headers.get('content-type') || '';
+    const data = await response.json();
+
+    // console.log("Gemini response:", response);
+    // console.log("\n\n\n\n\n\nwergesoijghsleijrhtwiGemini response2", response.answer);
+
+    console.log(data.answer);
+    
+    setDisplayText(data.answer);
+
+    }
  
 
   return (
@@ -242,9 +268,81 @@ export default function ImageUploadPage() {
             ) : (
               <p className="text-zinc-400">Upload an image to see the output...</p>
             )}
+
+          </div>
+            
+{/* Input area - fixed at bottom */}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              
+              placeholder="Enter your text here..."
+              className="flex-1 bg-zinc-800 text-white border border-zinc-700 rounded-md px-4 py-3 focus:outline-none focus:border-zinc-600"
+            />
+            <button
+              onClick={HandleFinalSubmit}
+              className="bg-white text-black font-medium px-6 py-3 rounded-md hover:bg-zinc-200 transition-colors"
+            >
+              Submit
+            </button>
+         
+       
+
+
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+    //  const contentType = response.headers.get('content-type') || '';
+    // if (!response.ok) {
+    //   let errorPayload;
+    //   if (contentType.includes('application/json')) {
+    //     try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
+    //   } else {
+    //     errorPayload = await response.text();
+    //   }
+    //   console.error('API error response:', errorPayload);
+    //   throw new Error(`API returned ${response.status}`);
+    // }
+    // }
+
+
+// async function uploadImage(file) {
+//     const formData = new FormData();
+//     formData.append('image', file);
+
+//     const response = await fetch('/api/classification', {
+//       method: 'POST',
+//       body: formData,
+//     });
+
+//     const contentType = response.headers.get('content-type') || '';
+//     if (!response.ok) {
+//       let errorPayload;
+//       if (contentType.includes('application/json')) {
+//         try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
+//       } else {
+//         errorPayload = await response.text();
+//       }
+//       console.error('API error response:', errorPayload);
+//       throw new Error(`API returned ${response.status}`);
+//     }
+
+//     if (!contentType.includes('application/json')) {
+//       const text = await response.text();
+//       throw new Error(`Unexpected non-JSON response: ${text.slice(0,100)}...`);
+//     }
+
+//     const result = await response.json();
+//     return result;
+//   }
