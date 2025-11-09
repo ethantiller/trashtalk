@@ -112,12 +112,31 @@ export default function ImageUploadPage() {
     return result;
   }
 
+  
+
+
     async function HandleFinalSubmit() {
     if (!userInput) return;
-    setDisplayText(userInput);    
-    // try {
-    //   const formData = new FormData();
-    //   formData.append('message', userInput);   
+    setDisplayText("worked: ");
+
+    const formData = new FormData();
+    formData.append('huggingfaceText', displayText);
+    formData.append('userText', userInput);
+
+    const response = await fetch('/api/gemini', {
+      method: 'POST',
+      body: formData,
+    });
+    // const contentType = response.headers.get('content-type') || '';
+    const data = await response.json();
+
+    // console.log("Gemini response:", response);
+    // console.log("\n\n\n\n\n\nwergesoijghsleijrhtwiGemini response2", response.answer);
+
+    console.log(data.answer);
+    
+    setDisplayText(data.answer);
+
     }
  
 
@@ -279,20 +298,51 @@ export default function ImageUploadPage() {
   );
 }
 
-// {/* Right side - Text content */}
-//         <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 flex flex-col">
-//           {/* Content area - takes up remaining space */}
-//           <div className="flex-1 overflow-y-auto mb-4">
-//             <h2 className="text-2xl font-bold text-white mb-4">
-//               Output
-//             </h2>
-//             <div className="space-y-4 text-zinc-300">
-//               {displayText ? (
-//                 <p className="text-xl font-semibold text-white">{displayText}</p>
-//               ) : (
-//                 <p className="text-zinc-400">Upload an image to see the output...</p>
-//               )}
-//             </div>
-//           </div>
 
-          
+
+
+
+
+    //  const contentType = response.headers.get('content-type') || '';
+    // if (!response.ok) {
+    //   let errorPayload;
+    //   if (contentType.includes('application/json')) {
+    //     try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
+    //   } else {
+    //     errorPayload = await response.text();
+    //   }
+    //   console.error('API error response:', errorPayload);
+    //   throw new Error(`API returned ${response.status}`);
+    // }
+    // }
+
+
+// async function uploadImage(file) {
+//     const formData = new FormData();
+//     formData.append('image', file);
+
+//     const response = await fetch('/api/classification', {
+//       method: 'POST',
+//       body: formData,
+//     });
+
+//     const contentType = response.headers.get('content-type') || '';
+//     if (!response.ok) {
+//       let errorPayload;
+//       if (contentType.includes('application/json')) {
+//         try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
+//       } else {
+//         errorPayload = await response.text();
+//       }
+//       console.error('API error response:', errorPayload);
+//       throw new Error(`API returned ${response.status}`);
+//     }
+
+//     if (!contentType.includes('application/json')) {
+//       const text = await response.text();
+//       throw new Error(`Unexpected non-JSON response: ${text.slice(0,100)}...`);
+//     }
+
+//     const result = await response.json();
+//     return result;
+//   }
