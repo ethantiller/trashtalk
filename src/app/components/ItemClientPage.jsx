@@ -1,18 +1,6 @@
 "use client";
 
-export default function ItemClientPage({ item }){
-
-  if (!item) {
-    return (
-      <div className="min-h-screen bg-black text-zinc-100 flex items-center justify-center">
-        <p className="text-zinc-400 text-lg">Item not found.</p>
-      </div>
-    );
-  }
-
-   // createdAt is always an ISO string or missing
-  const createdAtDate = item.createdAt ? new Date(item.createdAt) : null;
-
+export default function ItemClientPage({ }){  //item }) {
   
   // Custom scrollbar styles
   const scrollbarStyles = `
@@ -41,7 +29,16 @@ export default function ItemClientPage({ item }){
       scrollbar-color: #27272a #09090b;
     }
   `;
-
+  
+ 
+  const item = {itemName:"Plastic Bottle", itemAnalysis:"You should try throwing it intasdf adsfasf asdfaf asdfasf asdfasdf asdfasdf o the ocean", itemHash:"abc123", itemDescription:"A standard plastic water bottle.",
+                 itemWinOrLose:"win", confidenceRating:"95%", createdAt: { seconds: 1696118400 },
+                 recyclingLocations:[{name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
+                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
+                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
+                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
+                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
+                  {name:"Recycle Center B", address:"456 Eco Rd", lat:40.7138, long:-74.0160, distanceFromAddress:2.5}]};
   return (
    <div className="h-screen bg-black text-zinc-100 overflow-hidden">
   <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
@@ -65,7 +62,7 @@ export default function ItemClientPage({ item }){
         </div>
         
         <p className="text-zinc-400 mb-7" >Item Description: {item.itemDescription}</p>
-        <p className="text-zinc-400 space-y-7" >Recycling Details:</p>
+        <p className="text-zinc-400 space-y-7" >Gemini Analysis:</p>
         <p className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg" >{item.itemAnalysis}</p>
 
         <section className="space-y-2">
@@ -75,9 +72,22 @@ export default function ItemClientPage({ item }){
               {item.itemWinOrLose}
             </span>
           </p>
+          {createdAtDate && (
+            <p className="text-sm text-zinc-500">
+              Created: {createdAtDate.toLocaleString()}
+            </p>
+          )}
           <p className="text-sm text-zinc-500">
             Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
           </p>
+          {item.userLocation && (
+            <p className="text-sm text-zinc-500">
+              User Location:{" "}
+              <span className="font-mono">
+                {item.userLocation.latitude ?? "N/A"}, {item.userLocation.longitude ?? "N/A"}
+              </span>
+            </p>
+          )}
         </section>
 
         {/* Image */}
@@ -100,28 +110,34 @@ export default function ItemClientPage({ item }){
         </div>
 
         {/* Recycling locations - Takes up remaining 40% */}
-        {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
+        {item.recyclingLocations && item.recyclingLocations.length > 0 && (
           <section className="h-[40%] flex flex-col overflow-hidden">
             <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Recycling Locations</h2>
             <div className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
               {item.recyclingLocations.map((loc, idx) => (
-                <div
+                <li
                   key={idx}
                   className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60"
                 >
-                  <p className="font-medium">{loc.name}</p>
-                  <p className="text-sm text-zinc-400">{loc.address}</p>
-                  <p className="text-xs text-zinc-500 mt-1"> Distance: {loc.distanceFromAddress?.toFixed?.(2)} km </p>
-                  <p className="text-xs text-zinc-500">Coords: {loc.lat}, {loc.long} </p>
-                </div>
+                  <p className="font-medium">{loc.name || ''}</p>
+                  <p className="text-sm text-zinc-400">{loc.address || ''}</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Distance: {typeof loc.distanceFromAddress === 'number' ? loc.distanceFromAddress.toFixed(2) : ''} km
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Coords: {loc.lat ?? ''}, {loc.long ?? ''}
+                  </p>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         )}
-      </div>
 
+        {/* Debug / raw data (optional) */}
+        {/* <pre className="mt-8 text-xs text-zinc-400 bg-zinc-900 p-4 rounded-lg overflow-x-auto">
+          {JSON.stringify(item, null, 2)}
+        </pre> */}
+      </main>
     </div>
-  </main>
-</div>
   );
 }
