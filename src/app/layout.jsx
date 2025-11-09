@@ -21,6 +21,11 @@ export const metadata = {
     "green living",
     "waste reduction",
     "TrashTalkers",
+    "TrashTalkers",
+    "trashtalkers",
+    "trashtalk",
+    "trash talkers",
+    "trash talker",
     "recycle app",
     "zero waste"
   ],
