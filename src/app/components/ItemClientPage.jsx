@@ -59,7 +59,6 @@ export default function ItemClientPage({ item, uid }) {
     }
   `;
 
-
   let redemptionValue = item.redemptionValue || 0;
   if (typeof item.redemptionValue === 'number') {
     redemptionValue = item.redemptionValue;

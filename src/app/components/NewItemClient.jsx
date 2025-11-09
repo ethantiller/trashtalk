@@ -193,7 +193,7 @@ export default function ImageUploadPage({ userId }) {
     };
 
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-black" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
             <nav className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">

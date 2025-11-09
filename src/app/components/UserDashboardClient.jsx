@@ -52,14 +52,14 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
     });
 
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-black" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
             <nav className="border-b border-zinc-800/50 backdrop-blur-xl bg-black/50 sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-6 h-14 flex justify-between items-center">
                     <button
                         onClick={() => window.open('https://github.com/ethantiller/trashtalk', '_blank')}
                         className="cursor-pointer flex items-center gap-2 hover:opacity-70 transition-opacity"
                     >
-                        <span className="text-white font-bold text-lg" style={{ fontFamily: 'VT323, monospace', letterSpacing: '0.05em', fontSize: '1.25rem' }}>Trash Talkers</span>
+                        <span className="text-white font-bold text-lg">TrashTalkers.tech</span>
                     </button>
 
                     <div className="relative">
