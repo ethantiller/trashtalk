@@ -159,9 +159,11 @@ export default function LoginPage() {
             </button>
 
             <div className="text-center">
-              <a href="#" className="cursor-pointer text-sm text-zinc-400 hover:text-white transition-colors">
+              <Link href="/forgotten" className="cursor-pointer text-sm text-zinc-400 hover:text-white transition-colors">
                 Forgot password?
-              </a>
+              </Link>
+
+
             </div>
           </form>
 
