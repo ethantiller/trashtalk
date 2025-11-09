@@ -17,7 +17,7 @@ export default function Welcome() {
         loop
         playsInline
       >
-        <source src="/videos/video1.mp4" type="video/mp4" />
+        <source src="/videos/video1.webm" type="video/webm" />
       </video>
 
       {/* Dark Overlay */}
