@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { auth, googleProvider } from '@/app/lib/firebase';
 import { signInWithEmailAndPassword, signInWithPopup } from 'firebase/auth';
 import { setCookie } from 'cookies-next';
+import { updateUserLastLogin } from '@/app/lib/firebaseFunctions/firebaseAuth/firebaseDBAuth';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -33,6 +34,8 @@ export default function LoginPage() {
         formData.email,
         formData.password
       );
+
+      await updateUserLastLogin(userCredential.user.uid);
 
       const user = userCredential.user;
       const token = await user.getIdToken();
