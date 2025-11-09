@@ -96,12 +96,13 @@ export default function ItemClientPage({ item, uid }) {
   }
 
   return (
-    <div className="h-screen bg-black text-zinc-100 overflow-hidden">
+    <div className="min-h-screen bg-black text-zinc-100">
       <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
-      <main className="h-full px-4 py-8 overflow-hidden">
-        <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <main className="px-4 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:h-screen lg:overflow-hidden">
 
-          <div className="h-full flex flex-col overflow-hidden">
+          {/* Left Column */}
+          <div className="flex flex-col lg:h-full lg:overflow-hidden">
             <div className="flex items-center mb-5">
               <button
                 onClick={handleBackClick}
@@ -119,37 +120,36 @@ export default function ItemClientPage({ item, uid }) {
                   </svg>
                 )}
               </button>
-              <h1 className="text-4xl font-bold flex-1 text-center">
+              <h1 className="text-2xl sm:text-4xl font-bold flex-1 text-center">
                 {item.itemName?.charAt(0).toUpperCase() + item.itemName?.slice(1)} Recycling
               </h1>
             </div>
 
             {item.itemPhoto && (
-              <div className="w-full min-h-[200px] h-[300px] sm:h-[400px] lg:h-[450px] rounded-lg overflow-hidden border border-zinc-800 mb-5 flex items-center justify-center bg-zinc-950">
+              <div className="w-full h-[300px] sm:h-[400px] lg:h-[450px] rounded-lg overflow-hidden border border-zinc-800 mb-5 flex items-center justify-center bg-zinc-950">
                 <img
                   src={item.itemPhoto}
                   alt={item.itemName}
                   className="w-full h-full object-cover"
-                  style={{ maxHeight: '100%', maxWidth: '100%' }}
                 />
               </div>
             )}
 
-            <div className="mb-6 min-h-[120px] max-h-70 sm:max-h-80 flex flex-col">
+            <div className="mb-6 flex flex-col">
               <p className="text-zinc-400 mb-3 text-sm">Recycling Details:</p>
-              <div className="flex-1 bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg overflow-y-auto custom-scrollbar">
+              <div className="bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg max-h-[200px] lg:max-h-[280px] overflow-y-auto custom-scrollbar">
                 <p className="text-sm text-zinc-300">{item.itemDescription}</p>
               </div>
             </div>
 
-            <div className={`from-green-900/30 to-emerald-900/20 border ${redemptionBorder} rounded-lg p-4 mb-5`}>
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div className="flex flex-col items-start sm:items-start sm:w-1/2">
+            <div className={`border ${redemptionBorder} rounded-lg p-4 mb-5`}>
+              <div className="flex flex-col gap-4">
+                <div className="flex flex-col items-start">
                   <p className="text-sm text-zinc-400 mb-1">Estimated Redemption Value</p>
                   <p className={`text-3xl font-bold ${redemptionText}`}>${redemptionValue.toFixed(2)}</p>
                   <p className="text-xs text-zinc-500 mt-1">per can in Ohio</p>
                 </div>
-                <div className="flex flex-row sm:flex-col gap-6 sm:gap-2 sm:w-1/2 items-start sm:items-end">
+                <div className="flex flex-row gap-6 items-start">
                   <div>
                     <p className="text-sm text-zinc-400">Result</p>
                     <p className={`text-lg font-semibold ${
@@ -170,14 +170,15 @@ export default function ItemClientPage({ item, uid }) {
               </div>
             </div>
             {createdAtDate && (
-              <p className="text-xs text-zinc-500 mt-1">
+              <p className="text-xs text-zinc-500 mt-1 mb-8 lg:mb-0">
                 {createdAtDate.toLocaleString()}
               </p>
             )}
           </div>
 
-          <div className="h-full flex flex-col gap-6 overflow-hidden">
-            <div className="h-[60%] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center relative">
+          {/* Right Column */}
+          <div className="flex flex-col gap-6 lg:h-full lg:overflow-hidden">
+            <div className="h-[400px] lg:h-[60%] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center relative">
               {isLoadingMap && (
                 <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm z-10">
                   <div className="flex flex-col items-center gap-3">
@@ -204,9 +205,9 @@ export default function ItemClientPage({ item, uid }) {
             </div>
 
             {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
-              <section className="h-[40%] flex flex-col overflow-hidden">
+              <section className="flex flex-col pb-8 lg:pb-0 lg:h-[40%] lg:overflow-hidden">
                 <h2 className="text-xl font-semibold mb-3">Recycling Locations</h2>
-                <div className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+                <div className="space-y-3 lg:overflow-y-auto pr-2 custom-scrollbar">
                   {item.recyclingLocations.map((loc, idx) => (
                     <div
                       key={idx}
