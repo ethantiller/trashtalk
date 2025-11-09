@@ -70,3 +70,15 @@ jobs:
                   --region ${{ env.REGION }} \
                   --platform managed \
                   --allow-unauthenticated \
+                  --set-secrets=FIREBASE_CLIENT_EMAIL=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/FIREBASE_CLIENT_EMAIL:latest \
+                  --set-secrets=FIREBASE_PRIVATE_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/FIREBASE_PRIVATE_KEY:latest \
+                  --set-secrets=FIREBASE_PROJECT_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/FIREBASE_PROJECT_ID:latest \
+                  --set-secrets=GEMINI_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/GEMINI_API_KEY:latest \
+                  --set-secrets=HUGGINGFACE_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/HUGGINGFACE_API_KEY:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_API_KEY:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_APP_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_APP_ID:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_PROJECT_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_PROJECT_ID:latest \
+                  --set-secrets=NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET:latest
