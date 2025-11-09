@@ -28,7 +28,7 @@ const ITEMS_SUBCOLLECTION = "items";
 
 
 export async function addItemToUser(userId, itemData) {
-  const itemHash = itemData.itemHash; // <- use hash as doc ID
+  const itemHash = itemData.itemHash;
 
   const itemDocRef = doc(
     db,
@@ -61,7 +61,7 @@ export async function getUserItems(userId) {
 
   itemsSnapshot.forEach((docSnap) => {
     const data = docSnap.data();
-    const itemHash = docSnap.id; // ← FIXED: use docSnap.id instead of docSnap.itemHash
+    const itemHash = docSnap.id;
 
     itemsArray.push({
       id: itemHash,
@@ -78,7 +78,7 @@ export async function getUserItems(userId) {
     });
   });
 
-  return itemsArray; // ← FIXED: return array instead of object
+  return itemsArray;
 }
 
 export async function getItemByHash(userId, itemHash) {

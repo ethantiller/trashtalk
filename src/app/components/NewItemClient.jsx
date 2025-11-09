@@ -17,8 +17,6 @@ export default function ImageUploadPage({ userId }) {
     const [selectedPrediction, setSelectedPrediction] = useState('');
     const [input, setInput] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [geminiResponse, setGeminiResponse] = useState('');
-    const [placesResponse, setPlacesResponse] = useState([]);
     const router = useRouter();
 
     const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
@@ -61,8 +59,6 @@ export default function ImageUploadPage({ userId }) {
         setPredictions([]);
         setSelectedPrediction('');
         setInput('');
-        setGeminiResponse('');
-        setPlacesResponse([]);
     };
 
     const classifyImage = async () => {
@@ -130,28 +126,20 @@ export default function ImageUploadPage({ userId }) {
                         geminiResp = await res.json();
                     } else {
                         const text = await res.text();
-                        console.error('Gemini non-JSON response:', text);
                         geminiResp = { answer: text };
                     }
                     const placesContentType = resp.headers.get('content-type') || '';
                     if (placesContentType.includes('application/json')) {
                         placesResp = await resp.json();
                     } else {
-                        const text = await resp.text();
-                        console.error('Places non-JSON response:', text);
                         placesResp = { places: [] };
                     }
-                    console.log('Gemini response:', geminiResp);
-                    console.log('Places response:', placesResp);
-                    setGeminiResponse(geminiResp.answer || 'No response');
-                    setPlacesResponse(placesResp.places || []);
                     const itemHash = uuidv4();
                     const recyclingLocations = (placesResp.places || []).map((place) => ({
                         name: place.name || '',
                         lat: place.latitude || 0,
                         long: place.longitude || 0,
                         address: place.address || '',
-                        distanceFromAddress: place.distanceFromAddress || 0,
                     }));
                     const selectedPredictionObj = predictions.find(
                         (p) => p.label === selectedPrediction

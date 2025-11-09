@@ -9,7 +9,7 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('newest');
     // Ensure items is always an array
-    const [items, setItems] = useState(Array.isArray(initialItems) ? initialItems : []);
+    const [items] = useState(Array.isArray(initialItems) ? initialItems : []);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const router = useRouter();
 
