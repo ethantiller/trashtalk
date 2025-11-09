@@ -82,7 +82,7 @@ jobs:
                   --set-secrets=FIREBASE_PRIVATE_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/FIREBASE_PRIVATE_KEY:latest \
                   --set-secrets=FIREBASE_PROJECT_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/FIREBASE_PROJECT_ID:latest \
                   --set-secrets=GEMINI_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/GEMINI_API_KEY:latest \
-                  --set-secrets=GCP_MAPS_API_KEY=projects/${{ secrets.GCP_MAPS_API }}/secrets/GCP_MAPS_API_KEY:latest \
+                  --set-secrets=GCP_MAPS_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/GCP_MAPS_API_KEY:latest \
                   --set-secrets=HUGGINGFACE_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/HUGGINGFACE_API_KEY:latest \
                   --set-secrets=NEXT_PUBLIC_FIREBASE_API_KEY=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_API_KEY:latest \
                   --set-secrets=NEXT_PUBLIC_FIREBASE_APP_ID=projects/${{ secrets.GCP_PROJECT_NUMBER }}/secrets/NEXT_PUBLIC_FIREBASE_APP_ID:latest \
