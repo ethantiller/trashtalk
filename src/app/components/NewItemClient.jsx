@@ -198,14 +198,8 @@ export default function ImageUploadPage({ userId }) {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
                         <div className="flex items-center gap-3">
-                            <Image
-                                src="/trashtalk.png"
-                                alt="App Logo"
-                                width={24}
-                                height={24}
-                            />
                             <span className="text-white font-semibold text-lg">
-                                Trash Talk
+                                TrashTalkers.tech
                             </span>
                         </div>
                     </div>
