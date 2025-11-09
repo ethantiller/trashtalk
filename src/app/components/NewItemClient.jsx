@@ -102,6 +102,9 @@ export default function ImageUploadPage({ userId }) {
                     geminiFormData.append('userDescription', input);
                     geminiFormData.append('latitude', String(position.coords.latitude));
                     geminiFormData.append('longitude', String(position.coords.longitude));
+                    if (image) {
+                        geminiFormData.append('image', image);
+                    }
                     placesFormData.append('textQuery', `${selectedPrediction} recycling center`);
                     placesFormData.append('latitude', String(position.coords.latitude));
                     placesFormData.append('longitude', String(position.coords.longitude));

@@ -95,11 +95,12 @@ export default function ItemClientPage({ item, uid }) {
             </div>
 
             {item.itemPhoto && (
-              <div className="w-full h-64 rounded-lg overflow-hidden border border-zinc-800 mb-5">
+              <div className="w-full min-h-[200px] h-[300px] sm:h-[400px] lg:h-[450px] rounded-lg overflow-hidden border border-zinc-800 mb-5 flex items-center justify-center bg-zinc-950">
                 <img
                   src={item.itemPhoto}
                   alt={item.itemName}
                   className="w-full h-full object-cover"
+                  style={{ maxHeight: '100%', maxWidth: '100%' }}
                 />
               </div>
             )}
