@@ -11,11 +11,22 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
     const [items, setItems] = useState(Array.isArray(initialItems) ? initialItems : []);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [deletingItemId, setDeletingItemId] = useState(null);
+    const [loadingItemId, setLoadingItemId] = useState(null);
+    const [isLoggingOut, setIsLoggingOut] = useState(false);
     const router = useRouter();
 
-    const handleAddItem = () => router.push(`/dashboard/${userId}/newitem`);
-    const handleItemClick = (itemHash) => router.push(`/dashboard/${userId}/items/${itemHash}`);
+    const handleAddItem = () => {
+        setLoadingItemId('add-new');
+        router.push(`/dashboard/${userId}/newitem`);
+    };
+
+    const handleItemClick = (itemHash, itemId) => {
+        setLoadingItemId(itemId);
+        router.push(`/dashboard/${userId}/items/${itemHash}`);
+    };
+
     const handleLogout = async () => {
+        setIsLoggingOut(true);
         deleteCookie('firebaseToken');
         router.push('/login');
     };
@@ -56,18 +67,26 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                         onClick={() => window.open('https://github.com/ethantiller/trashtalk', '_blank')}
                         className="cursor-pointer flex items-center gap-2 hover:opacity-70 transition-opacity"
                     >
-                        <span className="text-white font-bold text-lg">TrashTalkers.tech</span>
+                        <span className="text-white font-bold text-lg">TRASHTALKERS</span>
                     </button>
 
                     <div className="relative">
                         <button
                             onClick={() => setShowProfileMenu(!showProfileMenu)}
-                            className="cursor-pointer w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center"
+                            disabled={isLoggingOut}
+                            className="cursor-pointer w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            <span className="text-white font-semibold">TT</span>
+                            {isLoggingOut ? (
+                                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                                    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <span className="text-white font-semibold">TT</span>
+                            )}
                         </button>
 
-                        {showProfileMenu && (
+                        {showProfileMenu && !isLoggingOut && (
                             <div className="absolute right-0 mt-2 w-40 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl py-1">
                                 <button
                                     onClick={handleLogout}
@@ -108,30 +127,50 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
                     <button
                         onClick={handleAddItem}
-                        className="cursor-pointer group bg-zinc-900/50 border border-dashed border-zinc-800 rounded-lg p-4 hover:border-zinc-700 hover:bg-zinc-900 transition-all min-h-[200px] flex flex-col items-center justify-center"
+                        disabled={loadingItemId === 'add-new'}
+                        className="cursor-pointer group bg-zinc-900/50 border border-dashed border-zinc-800 rounded-lg p-4 hover:border-zinc-700 hover:bg-zinc-900 transition-all min-h-[200px] flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         <div className="bg-zinc-800/50 rounded-lg w-full aspect-video mb-3 flex items-center justify-center group-hover:bg-zinc-800 transition-colors">
-                            <span className="text-4xl text-zinc-600 group-hover:text-zinc-500">+</span>
+                            {loadingItemId === 'add-new' ? (
+                                <svg className="animate-spin h-8 w-8 text-zinc-500" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            ) : (
+                                <span className="text-4xl text-zinc-600 group-hover:text-zinc-500">+</span>
+                            )}
                         </div>
-                        <p className="text-zinc-500 text-xs group-hover:text-zinc-400">Add image</p>
+                        <p className="text-zinc-500 text-xs group-hover:text-zinc-400">
+                            {loadingItemId === 'add-new' ? 'Loading...' : 'Add image'}
+                        </p>
                     </button>
 
                     {sortedItems.map((item) => (
                         <div
                             key={item.id}
-                            onClick={() => handleItemClick(item.itemHash)}
-                            className="group bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-700 hover:bg-zinc-900 transition-all cursor-pointer relative"
+                            onClick={() => handleItemClick(item.itemHash, item.id)}
+                            className={`group bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-700 hover:bg-zinc-900 transition-all cursor-pointer relative ${
+                                loadingItemId === item.id ? 'opacity-50 pointer-events-none' : ''
+                            }`}
                         >
+                            {loadingItemId === item.id && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 backdrop-blur-sm z-20">
+                                    <svg className="animate-spin h-10 w-10 text-white" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                                        <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                            )}
                             <button
                                 onClick={(e) => handleDeleteItem(e, item.itemHash, item.id)}
-                                disabled={deletingItemId === item.id}
+                                disabled={deletingItemId === item.id || loadingItemId === item.id}
                                 className="cursor-pointer absolute top-2 right-2 z-10 w-7 h-7 bg-black/60 hover:bg-red-600 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                                 title="Delete item"
                             >
                                 {deletingItemId === item.id ? (
                                     <svg className="w-4 h-4 text-white animate-spin" fill="none" viewBox="0 0 24 24">
-                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                        <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                                        <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                                     </svg>
                                 ) : (
                                     <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -149,7 +188,7 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                                 )}
                             </div>
                             <div className="p-3">
-                                <h3 className="text-white font-medium text-sm truncate mb-1">{item.itemName}</h3>
+                                <h3 className="text-white font-medium text-sm truncate mb-1">{item.itemName.charAt(0).toUpperCase() + item.itemName.slice(1) + " Waste"}</h3>
                                 <p className="text-zinc-500 text-xs line-clamp-2 mb-2">{item.itemDescription}</p>
                                 <p className="text-zinc-600 text-xs">
                                     {new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleDateString()}

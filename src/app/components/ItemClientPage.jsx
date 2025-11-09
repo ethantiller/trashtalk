@@ -5,10 +5,15 @@ import { useRouter } from 'next/navigation';
 
 export default function ItemClientPage({ item, uid }) {
   const [embedUrl, setEmbedUrl] = useState(null);
+  const [isLoadingMap, setIsLoadingMap] = useState(false);
+  const [activeLocationIndex, setActiveLocationIndex] = useState(null);
+  const [isNavigatingBack, setIsNavigatingBack] = useState(false);
   const router = useRouter();
 
-  const handleLocationClick = async (address) => {
+  const handleLocationClick = async (address, index) => {
     if (!address) return;
+    setIsLoadingMap(true);
+    setActiveLocationIndex(index);
     try {
       const response = await fetch('/api/maps', {
         method: 'POST',
@@ -24,14 +29,22 @@ export default function ItemClientPage({ item, uid }) {
       if (data.success && data.embedUrl) {
         setEmbedUrl(data.embedUrl);
       }
-    } catch (error) { }
+    } catch (error) {
+    } finally {
+      setIsLoadingMap(false);
+    }
+  };
+
+  const handleBackClick = () => {
+    setIsNavigatingBack(true);
+    router.push(`/dashboard/${uid}`);
   };
 
   useEffect(() => {
     if (item?.recyclingLocations && item.recyclingLocations.length > 0) {
       const firstLocation = item.recyclingLocations[0];
       if (firstLocation?.address) {
-        handleLocationClick(firstLocation.address);
+        handleLocationClick(firstLocation.address, 0);
       }
     }
   }, []);
@@ -91,12 +104,20 @@ export default function ItemClientPage({ item, uid }) {
           <div className="h-full flex flex-col overflow-hidden">
             <div className="flex items-center mb-5">
               <button
-                onClick={() => router.push(`/dashboard/${uid}`)}
-                className="cursor-pointer flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors px-4 py-2 rounded-lg"
+                onClick={handleBackClick}
+                disabled={isNavigatingBack}
+                className="cursor-pointer flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors px-4 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M19 12H5M12 19l-7-7 7-7" />
-                </svg>
+                {isNavigatingBack ? (
+                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                    <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 12H5M12 19l-7-7 7-7" />
+                  </svg>
+                )}
               </button>
               <h1 className="text-4xl font-bold flex-1 text-center">
                 {item.itemName?.charAt(0).toUpperCase() + item.itemName?.slice(1)} Recycling
@@ -156,8 +177,19 @@ export default function ItemClientPage({ item, uid }) {
           </div>
 
           <div className="h-full flex flex-col gap-6 overflow-hidden">
-            <div className="h-[60%] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center">
-              {embedUrl ? (
+            <div className="h-[60%] bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden flex items-center justify-center relative">
+              {isLoadingMap && (
+                <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/80 backdrop-blur-sm z-10">
+                  <div className="flex flex-col items-center gap-3">
+                    <svg className="animate-spin h-10 w-10 text-zinc-400" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                      <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p className="text-sm text-zinc-400">Loading directions...</p>
+                  </div>
+                </div>
+              )}
+              {embedUrl && !isLoadingMap ? (
                 <iframe
                   src={embedUrl}
                   className="w-full h-full"
@@ -166,9 +198,9 @@ export default function ItemClientPage({ item, uid }) {
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
                 />
-              ) : (
+              ) : !isLoadingMap ? (
                 <p className="text-zinc-500">Click a location to see directions</p>
-              )}
+              ) : null}
             </div>
 
             {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
@@ -178,9 +210,21 @@ export default function ItemClientPage({ item, uid }) {
                   {item.recyclingLocations.map((loc, idx) => (
                     <div
                       key={idx}
-                      onClick={() => handleLocationClick(loc.address)}
-                      className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60 cursor-pointer hover:bg-zinc-800/60 transition-colors"
+                      onClick={() => handleLocationClick(loc.address, idx)}
+                      className={`border rounded-lg p-3 cursor-pointer transition-all relative ${
+                        activeLocationIndex === idx && !isLoadingMap
+                          ? 'border-zinc-600 bg-zinc-800/80'
+                          : 'border-zinc-800 bg-zinc-900/60 hover:bg-zinc-800/60'
+                      } ${isLoadingMap && activeLocationIndex === idx ? 'opacity-60' : ''}`}
                     >
+                      {isLoadingMap && activeLocationIndex === idx && (
+                        <div className="absolute right-3 top-3">
+                          <svg className="animate-spin h-5 w-5 text-zinc-400" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-20" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2"></circle>
+                            <path className="opacity-80" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                        </div>
+                      )}
                       <p className="font-medium">{loc.name}</p>
                       <p className="text-sm text-zinc-400">{loc.address}</p>
                       <p className="text-xs text-zinc-500 py-1">Coords: {loc.lat.toFixed(2)}, {loc.long.toFixed(2)} </p>
