@@ -81,9 +81,14 @@ export default function ImageUploadPage({ userId }) {
             if (!res.ok) throw new Error(`API error: ${res.status}`);
             const data = await res.json();
             if (data.success && Array.isArray(data.wastePredictions)) {
-                setPredictions(data.wastePredictions);
-                if (data.wastePredictions.length > 0) {
-                    setSelectedPrediction(data.wastePredictions[0].label);
+                const top3 = data.wastePredictions.slice(0, 3);
+                const predictionsWithOther = [
+                    ...top3,
+                    { label: 'Other', score: 0 }
+                ];
+                setPredictions(predictionsWithOther);
+                if (predictionsWithOther.length > 0) {
+                    setSelectedPrediction(predictionsWithOther[0].label);
                 }
             }
         } catch (err) {
@@ -146,6 +151,9 @@ export default function ImageUploadPage({ userId }) {
                         long: place.longitude || 0,
                         address: place.address || '',
                     }));
+                    // predictions.pop();
+                    // predictions.pop();
+                    // predictions.append("Other", 0.00);
                     const selectedPredictionObj = predictions.find(
                         (p) => p.label === selectedPrediction
                     );
