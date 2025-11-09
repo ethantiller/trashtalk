@@ -121,8 +121,14 @@ export default function ItemClientPage({ item, uid }) {
                 <div className="flex flex-row sm:flex-col gap-6 sm:gap-2 sm:w-1/2 items-start sm:items-end">
                   <div>
                     <p className="text-sm text-zinc-400">Result</p>
-                    <p className={`text-lg font-semibold ${item.itemWinOrLose === "win" ? "text-green-400" : "text-red-400"}`}>
-                      {item.itemWinOrLose === "win" ? "Profitable" : item.itemWinOrLose}
+                    <p className={`text-lg font-semibold ${
+                      item.itemWinOrLose === "Profitable"
+                        ? "text-green-400"
+                        : item.itemWinOrLose === "Neutral"
+                          ? "text-zinc-400"
+                          : "text-red-400"
+                    }`}>
+                      {item.itemWinOrLose}
                     </p>
                   </div>
                   <div>
