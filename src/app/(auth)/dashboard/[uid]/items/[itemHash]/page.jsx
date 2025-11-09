@@ -19,5 +19,5 @@ export default async function ItemServerPage({ params }) {
     redirect(`/dashboard/${uid}`);
   }
 
-  return <ItemClientPage item={item} />;
+  return <ItemClientPage item={item} uid={uid}/>;
 }
