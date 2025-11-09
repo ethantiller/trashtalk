@@ -9,8 +9,8 @@ export default function ItemClientPage({ item }) {
     );
   }
 
-  const createdAtDate =
-    item.createdAt?.toDate?.() ?? (item.createdAt ? new Date(item.createdAt) : null);
+  // createdAt is always an ISO string or missing
+  const createdAtDate = item.createdAt ? new Date(item.createdAt) : null;
 
   return (
     <div className="min-h-screen bg-black text-zinc-100">
@@ -49,10 +49,18 @@ export default function ItemClientPage({ item }) {
           <p className="text-sm text-zinc-500">
             Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
           </p>
+          {item.userLocation && (
+            <p className="text-sm text-zinc-500">
+              User Location:{" "}
+              <span className="font-mono">
+                {item.userLocation.latitude ?? "N/A"}, {item.userLocation.longitude ?? "N/A"}
+              </span>
+            </p>
+          )}
         </section>
 
         {/* Recycling locations */}
-        {item.recyclingLocations && item.recyclingLocations.length > 0 && (
+        {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
           <section className="mb-6">
             <h2 className="text-xl font-semibold mb-3">Recycling Locations</h2>
             <ul className="space-y-3">
@@ -61,13 +69,13 @@ export default function ItemClientPage({ item }) {
                   key={idx}
                   className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60"
                 >
-                  <p className="font-medium">{loc.name}</p>
-                  <p className="text-sm text-zinc-400">{loc.address}</p>
+                  <p className="font-medium">{loc.name || ''}</p>
+                  <p className="text-sm text-zinc-400">{loc.address || ''}</p>
                   <p className="text-xs text-zinc-500 mt-1">
-                    Distance: {loc.distanceFromAddress?.toFixed?.(2)} km
+                    Distance: {typeof loc.distanceFromAddress === 'number' ? loc.distanceFromAddress.toFixed(2) : ''} km
                   </p>
                   <p className="text-xs text-zinc-500">
-                    Coords: {loc.lat}, {loc.long}
+                    Coords: {loc.lat ?? ''}, {loc.long ?? ''}
                   </p>
                 </li>
               ))}
