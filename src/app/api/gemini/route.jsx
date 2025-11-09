@@ -11,6 +11,8 @@ export async function POST(request) {
 
     const formData = await request.formData();
     const huggingfaceText = formData.get('huggingfaceText');
+    const longitude = formData.get('longitude');
+    const latitude = formData.get('latitude');
     let userText = formData.get('userDescription'); // Changed to let, and fixed field name to match frontend
 
     if (!userText && !huggingfaceText) {
@@ -26,7 +28,45 @@ export async function POST(request) {
 
     const model = ai.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-    const prompt = `Focusing on disposing of waste properly, given the following information: ${huggingfaceText}. User additional input: ${userText}. WHEN OUTPUTTING A RESPONSE, DO NOT OUTPUT A RESPONSE IN MARKDOWN.`;
+    const prompt = `
+You are an expert in waste disposal, recycling, and environmental compliance.
+
+User location:
+- Latitude: ${latitude}
+- Longitude: ${longitude}
+
+Use the location to infer the likely U.S. state and local regulations as best you can.
+
+Information about the item:
+- System text (from model): ${huggingfaceText}
+- User description: ${userText}
+
+Your job:
+1) Decide whether handling or disposing of this item typically:
+   - costs the user money (fees, disposal charges, etc.),
+   - makes the user money (refunds, buy-back programs, scrap value, etc.), or
+   - is neutral (no common fees or payments).
+
+2) Give clear, practical guidance on how the user should dispose of or handle the item safely, tailored to their likely state/jurisdiction.
+
+RESPONSE FORMAT (IMPORTANT):
+- Do NOT use markdown.
+- Do NOT include bullet points or numbered lists.
+- Use exactly these two headings and this structure:
+
+Cost: <one of: Profitable, Non-Profitable, Neutral>
+
+Details: <one or more short paragraphs of advice>
+
+Details MUST include:
+- Any specific disposal or recycling guidance that is typically applicable in the user's region.
+- Any important safety precautions (e.g., wear gloves, avoid inhaling fumes, keep away from children/pets).
+- Any common transportation requirements (e.g., keep in original container, keep upright, do not mix with other chemicals, take directly to a hazardous waste facility, etc.).
+- Any typical state or local law considerations based on the inferred state and county (for example, hazardous waste rules, electronic waste bans from landfills, paint disposal rules, etc.).
+- If you are not sure of the exact local laws, clearly say that regulations vary by city/county, suggest checking the local or state government website, and name the likely state and a typical authority (for example “state environmental agency” or “county solid waste department”).
+
+Be concise, practical, and user-friendly.
+`;
 
     const result = await model.generateContent(prompt);
 
