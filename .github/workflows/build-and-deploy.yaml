@@ -3,7 +3,7 @@ name: Build Docker and Deploy to Cloud Run
 on:
   push:
     branches:
-      - add-deployment
+      - main
 
 env:
     REGION: us-east4
