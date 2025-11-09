@@ -100,6 +100,8 @@ export default function ImageUploadPage({ userId }) {
                     const placesFormData = new FormData();
                     geminiFormData.append('huggingfaceText', selectedPrediction);
                     geminiFormData.append('userDescription', input);
+                    geminiFormData.append('latitude', String(position.coords.latitude));
+                    geminiFormData.append('longitude', String(position.coords.longitude));
                     placesFormData.append('textQuery', `${selectedPrediction} recycling center`);
                     placesFormData.append('latitude', String(position.coords.latitude));
                     placesFormData.append('longitude', String(position.coords.longitude));
@@ -140,12 +142,21 @@ export default function ImageUploadPage({ userId }) {
                     );
                     const confidenceRating = selectedPredictionObj?.score ?? 0;
 
+                    let itemWinOrLose = 'Neutral';
+                    let itemDescription = geminiResp.answer || '';
+                    if (geminiResp.answer) {
+                        const costMatch = geminiResp.answer.match(/Cost:\s*([^\n]*)/);
+                        const detailsMatch = geminiResp.answer.match(/Details:\s*([\s\S]*)/);
+                        if (costMatch) itemWinOrLose = costMatch[1].trim();
+                        if (detailsMatch) itemDescription = detailsMatch[1].trim();
+                    }
+
                     const itemData = {
                         itemHash,
                         itemName: selectedPrediction,
                         itemPhoto: preview || '',
-                        itemDescription: geminiResp.answer || '',
-                        itemWinOrLose: 'win',
+                        itemDescription,
+                        itemWinOrLose,
                         recyclingLocations,
                         createdAt: new Date(),
                         confidenceRating,
