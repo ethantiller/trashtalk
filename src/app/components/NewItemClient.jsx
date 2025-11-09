@@ -163,6 +163,11 @@ export default function ImageUploadPage({ userId }) {
                         return;
                     }
 
+
+                    itemData.userLocation = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude
+                    };
                     await addItemToUser(userId, itemData);
 
                     router.push(`/dashboard/${uid}/items/${itemHash}`);

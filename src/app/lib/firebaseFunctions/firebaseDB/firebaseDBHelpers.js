@@ -46,6 +46,7 @@ export async function addItemToUser(userId, itemData) {
     recyclingLocations: itemData.recyclingLocations,
     createdAt: itemData.createdAt,
     confidenceRating: itemData.confidenceRating,
+    userLocation: itemData.userLocation,
   });
 }
 
@@ -75,6 +76,7 @@ export async function getUserItems(userId) {
         ? data.createdAt.toDate().toISOString()
         : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
       confidenceRating: data.confidenceRating,
+      userLocation: data.userLocation,
     });
   });
 
@@ -106,6 +108,7 @@ export async function getItemByHash(userId, itemHash) {
         ? data.createdAt.toDate().toISOString()
         : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
       confidenceRating: data.confidenceRating,
+      userLocation: data.userLocation,
     },
   };
 }

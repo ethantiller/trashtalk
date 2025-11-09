@@ -49,6 +49,14 @@ export default function ItemClientPage({ item }) {
           <p className="text-sm text-zinc-500">
             Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
           </p>
+          {item.userLocation && (
+            <p className="text-sm text-zinc-500">
+              User Location:{" "}
+              <span className="font-mono">
+                {item.userLocation.latitude ?? "N/A"}, {item.userLocation.longitude ?? "N/A"}
+              </span>
+            </p>
+          )}
         </section>
 
         {/* Recycling locations */}
