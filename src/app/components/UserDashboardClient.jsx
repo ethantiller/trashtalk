@@ -8,7 +8,8 @@ import Image from 'next/image';
 export default function UserDashboardClient({ userId, initialItems = [] }) {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('newest');
-    const [items, setItems] = useState(initialItems);
+    // Ensure items is always an array
+    const [items, setItems] = useState(Array.isArray(initialItems) ? initialItems : []);
     const [showProfileMenu, setShowProfileMenu] = useState(false);
     const router = useRouter();
 
@@ -31,9 +32,10 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
     };
 
     // Filter and sort items
-    const filteredItems = items.filter(item =>
-        item.itemName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.itemDescription.toLowerCase().includes(searchQuery.toLowerCase())
+    const safeItems = Array.isArray(items) ? items : [];
+    const filteredItems = safeItems.filter(item =>
+        item.itemName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.itemDescription?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
     const sortedItems = [...filteredItems].sort((a, b) => {

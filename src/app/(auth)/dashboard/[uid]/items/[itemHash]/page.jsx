@@ -14,9 +14,5 @@ export default async function ItemServerPage({ params }) {
 
   const item = await getItemByHash(uid, itemHash);
 
-  if (!item) {
-    redirect(`/dashboard/${uid}`);
-  }
-
   return <ItemClientPage item={item} />;
 }

@@ -4,26 +4,34 @@ import { useState } from 'react';
 import Image from 'next/image';
 
 export default function ImageUploadPage() {
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [displayText, setDisplayText] = useState('');
-  const [userInput, setUserInput] = useState('');
+  const [predictions, setPredictions] = useState([]);
+  const [selectedPrediction, setSelectedPrediction] = useState('');
+  const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [geminiResponse, setGeminiResponse] = useState('');
+  const [placesResponse, setPlacesResponse] = useState([]);
 
-  const handleImageSelect = (e) => {
-    const file = e.target.files[0];
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    
-    if (file && allowedTypes.includes(file.type)) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else if (file) {
-      alert('Please select a JPEG, PNG, or WebP image file.');
+  const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+
+  const processFile = (file) => {
+    if (!file) return;
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      alert('Please upload a JPEG, PNG, or WebP image.');
+      return;
     }
+
+    setImage(file);
+    const reader = new FileReader();
+    reader.onloadend = () => setPreview(reader.result);
+    reader.readAsDataURL(file);
+  };
+
+  const handleFileSelect = (e) => {
+    processFile(e.target.files?.[0]);
   };
 
   const handleDragOver = (e) => {
@@ -39,310 +47,312 @@ export default function ImageUploadPage() {
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
-    
-    const file = e.dataTransfer.files[0];
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    
-    if (file && allowedTypes.includes(file.type)) {
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else if (file) {
-      alert('Please select a JPEG, PNG, or WebP image file.');
-    }
+    processFile(e.dataTransfer.files?.[0]);
   };
 
   const handleRemove = () => {
-    setSelectedImage(null);
-    setPreviewUrl(null);
+    setImage(null);
+    setPreview(null);
+    setPredictions([]);
+    setSelectedPrediction('');
+    setInput('');
+    setGeminiResponse('');
   };
 
-  async function handleSubmit(e) {
-    e?.preventDefault();
-    if (!selectedImage) return;
-    setDisplayText('Classifying...');
+  const classifyImage = async () => {
+    if (!image) return;
+
+    setIsLoading(true);
+    setPredictions([]);
+    setSelectedPrediction('');
+
     try {
-      const result = await uploadImage(selectedImage);
-      if (result.success) {
-        const formatted = Array.isArray(result.wastePredictions)
-          ? result.wastePredictions
-              .map(p => `${p.label}: ${(p.score * 100).toFixed(1)}%`)
-              .join(', ')
-          : 'No predictions';
-        setDisplayText(formatted);
+      const formData = new FormData();
+      formData.append('image', image);
+
+      const res = await fetch('/api/classification', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) throw new Error(`API error: ${res.status}`);
+
+      const data = await res.json();
+
+      if (data.success && Array.isArray(data.wastePredictions)) {
+        setPredictions(data.wastePredictions);
+        // Auto-select the first (highest confidence) prediction
+        if (data.wastePredictions.length > 0) {
+          setSelectedPrediction(data.wastePredictions[0].label);
+        }
       } else {
-        setDisplayText(`Error: ${result.error || 'Unknown error'}`);
+        alert(`Error: ${data.error || 'Classification failed'}`);
       }
     } catch (err) {
-      console.error('Classification request failed:', err);
-      setDisplayText(`Request failed: ${err.message}`);
+      console.error('Classification error:', err);
+      alert(`Failed: ${err.message}`);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
-  async function uploadImage(file) {
-    const formData = new FormData();
-    formData.append('image', file);
+  const submitToGemini = async () => {
+    if (!input.trim() || !selectedPrediction) return;
 
-    const response = await fetch('/api/classification', {
-      method: 'POST',
-      body: formData,
-    });
+    setIsLoading(true);
 
-    const contentType = response.headers.get('content-type') || '';
-    if (!response.ok) {
-      let errorPayload;
-      if (contentType.includes('application/json')) {
-        try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
-      } else {
-        errorPayload = await response.text();
+    // Get user location
+    if (!navigator.geolocation) {
+      alert('Geolocation is not supported by your browser.');
+      setIsLoading(false);
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        try {
+          const geminiFormData = new FormData();
+          const placesFormData = new FormData();
+          geminiFormData.append('huggingfaceText', selectedPrediction);
+          geminiFormData.append('userDescription', input);
+          placesFormData.append('textQuery', `${selectedPrediction} recycling center`);
+          placesFormData.append('latitude', position.coords.latitude);
+          placesFormData.append('longitude', position.coords.longitude);
+
+          const res = await fetch('/api/gemini', {
+            method: 'POST',
+            body: geminiFormData,
+          });
+
+          const resp = await fetch('/api/places', {
+            method: 'POST',
+            body: placesFormData,
+          });
+
+          let geminiResp, placesResp;
+          // Handle Gemini response
+          const geminiContentType = res.headers.get('content-type') || '';
+          if (geminiContentType.includes('application/json')) {
+            geminiResp = await res.json();
+          } else {
+            const text = await res.text();
+            console.error('Gemini non-JSON response:', text);
+            geminiResp = { answer: text };
+          }
+          // Handle Places response
+          const placesContentType = resp.headers.get('content-type') || '';
+          if (placesContentType.includes('application/json')) {
+            placesResp = await resp.json();
+          } else {
+            const text = await resp.text();
+            console.error('Places non-JSON response:', text);
+            placesResp = { places: [] };
+          }
+
+          console.log('Gemini response:', geminiResp);
+          console.log('Places response:', placesResp);
+          setGeminiResponse(geminiResp.answer || 'No response');
+          setPlacesResponse(placesResp.places || []);
+
+          alert('Submission successful!');
+        } catch (err) {
+          console.error('Gemini error:', err);
+          alert(`Failed: ${err.message}`);
+        } finally {
+          setIsLoading(false);
+        }
+      },
+      (error) => {
+        alert('Location access is required to submit. Please allow location access and try again.');
+        setIsLoading(false);
       }
-      console.error('API error response:', errorPayload);
-      throw new Error(`API returned ${response.status}`);
-    }
-
-    if (!contentType.includes('application/json')) {
-      const text = await response.text();
-      throw new Error(`Unexpected non-JSON response: ${text.slice(0,100)}...`);
-    }
-
-    const result = await response.json();
-    return result;
-  }
-
-  
-
-
-    async function HandleFinalSubmit() {
-    if (!userInput) return;
-    setDisplayText("worked: ");
-
-    const formData = new FormData();
-    formData.append('huggingfaceText', displayText);
-    formData.append('userText', userInput);
-
-    const response = await fetch('/api/gemini', {
-      method: 'POST',
-      body: formData,
-    });
-    // const contentType = response.headers.get('content-type') || '';
-    const data = await response.json();
-
-    // console.log("Gemini response:", response);
-    // console.log("\n\n\n\n\n\nwergesoijghsleijrhtwiGemini response2", response.answer);
-
-    console.log(data.answer);
-    
-    setDisplayText(data.answer);
-
-    }
- 
+    );
+  };
 
   return (
-    <div className="h-screen bg-black p-4 overflow-hidden flex flex-col">
-      <div className="text-center mb-4">
-        <h1 className="text-4xl font-bold text-white animate-fade-in">Trash Talk</h1>
-      </div>
-      
-      <style jsx>{`
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        .animate-fade-in {
-          animation: fadeIn 0.8s ease-out;
-        }
-      `}</style>
+    <div className="min-h-screen bg-black">
+      {/* Navbar */}
+      <nav className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center gap-3">
+              <Image
+                src="/trashtalk.png"
+                alt="App Logo"
+                width={24}
+                height={24}
+              />
+              <span className="text-white font-semibold text-lg">
+                Trash Talk
+              </span>
+            </div>
+          </div>
+        </div>
+      </nav>
 
-      <div className="flex-1 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-4 overflow-hidden">
-        {/* Left side - Upload */}
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold text-white text-center mb-2">
-            Upload Your Image
-          </h2>
-          <p className="text-zinc-400 text-center mb-6">
-            Share a photo to get started
-          </p>
-
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Upload Section */}
           <div className="space-y-6">
-            {!previewUrl ? (
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Upload Image</h2>
+              <p className="text-zinc-400 text-sm">
+                Upload an image to classify waste type
+              </p>
+            </div>
+
+            {!preview ? (
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${
                   isDragging
-                    ? 'border-white bg-zinc-800'
+                    ? 'border-zinc-500 bg-zinc-800'
                     : 'border-zinc-700 hover:border-zinc-600'
                 }`}
               >
-                <div className="flex flex-col items-center gap-3">
-                  <div>
-                    <p className="text-white font-medium mb-1">
-                      Drop your image here, or browse
+                <div className="space-y-4">
+                  <div className="text-zinc-400">
+                    <p className="font-medium text-white mb-1">
+                      Drag and drop your image here
                     </p>
-                    <p className="text-zinc-400 text-sm">
-                      Supports: JPEG, PNG, WebP
-                    </p>
+                    <p className="text-sm">or click to browse</p>
+                    <p className="text-xs mt-2 text-zinc-500">JPEG, PNG, WebP supported</p>
                   </div>
 
-                  <label className="cursor-pointer">
+                  <label className="inline-block">
                     <input
                       type="file"
                       accept="image/jpeg,image/jpg,image/png,image/webp"
-                      onChange={handleImageSelect}
+                      onChange={handleFileSelect}
                       className="hidden"
                     />
-                    <span className="inline-block bg-white text-black font-medium px-6 py-2 rounded-md hover:bg-zinc-200 transition-colors">
-                      Choose File
+                    <span className="inline-block bg-white text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-zinc-200 transition-colors cursor-pointer">
+                      Select File
                     </span>
                   </label>
                 </div>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="relative rounded-lg overflow-hidden bg-zinc-800">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden">
                   <Image
-                    src={previewUrl}
+                    src={preview}
                     alt="Preview"
-                    className="w-full h-auto max-h-64 object-contain"
-                    width={500}
-                    height={500}
+                    className="w-full h-auto max-h-96 object-contain"
+                    width={800}
+                    height={600}
                   />
                 </div>
 
-                <div className="flex items-center justify-between bg-zinc-800 rounded-lg p-4">
+                <div className="flex items-center justify-between p-4 bg-zinc-900 rounded-lg border border-zinc-800">
                   <div className="flex items-center gap-3">
                     <Image
-                      src={previewUrl}
-                      alt="Preview"
-                      className="w-12 h-12 rounded-md object-cover"
-                      width={48}
-                      height={48}
+                      src={preview}
+                      alt="Thumbnail"
+                      className="w-10 h-10 rounded object-cover"
+                      width={40}
+                      height={40}
                     />
                     <div>
-                      <p className="text-white font-medium">{selectedImage.name}</p>
-                      <p className="text-zinc-400 text-sm">
-                        {(selectedImage.size / 1024 / 1024).toFixed(2)} MB
-                      </p>
+                      <p className="text-sm font-medium text-white">{image?.name}</p>
+                      {image && (
+                        <p className="text-xs text-zinc-500">
+                          {(image.size / 1024 / 1024).toFixed(2)} MB
+                        </p>
+                      )}
                     </div>
                   </div>
                   <button
                     onClick={handleRemove}
-                    className="text-zinc-400 hover:text-white transition-colors"
+                    className="text-sm text-zinc-400 hover:text-white transition-colors cursor-pointer"
                   >
+                    Remove
                   </button>
                 </div>
+
+                <button
+                  onClick={classifyImage}
+                  disabled={isLoading}
+                  className="cursor-pointer w-full bg-white text-black text-sm font-medium py-2.5 rounded-md hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isLoading ? 'Processing...' : 'Classify Image'}
+                </button>
               </div>
             )}
-            <button
-              onClick={handleSubmit}
-              disabled={!selectedImage}
-              className={`w-full font-medium py-3 rounded-md transition-colors ${
-                selectedImage
-                  ? 'bg-white text-black hover:bg-zinc-200'
-                  : 'bg-zinc-800 text-zinc-600 cursor-not-allowed'
-              }`}
-            >
-              {selectedImage ? 'Upload Image' : 'Select an image first'}
-            </button>
           </div>
-        </div>
 
-        {/* Right side - Text content */}
-        <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-6 overflow-y-auto">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            Output
-          </h2>
-          <div className="space-y-4 text-zinc-300">
-            {displayText ? (
-              <p className="text-xl font-semibold text-white">{displayText}</p>
-            ) : (
-              <p className="text-zinc-400">Upload an image to see the output...</p>
+          {/* Results Section */}
+          <div className="space-y-6">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Classification Results</h2>
+              <p className="text-zinc-400 text-sm">
+                Select the correct classification
+              </p>
+            </div>
+
+            <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 min-h-[200px]">
+              {predictions.length > 0 ? (
+                <div className="space-y-3">
+                  {predictions.map((prediction, index) => (
+                    <label
+                      key={index}
+                      className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all ${
+                        selectedPrediction === prediction.label
+                          ? 'bg-zinc-800 border-white'
+                          : 'bg-zinc-900 border-zinc-700 hover:border-zinc-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="radio"
+                          name="prediction"
+                          value={prediction.label}
+                          checked={selectedPrediction === prediction.label}
+                          onChange={(e) => setSelectedPrediction(e.target.value)}
+                          className="w-4 h-4 text-white bg-zinc-800 border-zinc-600 focus:ring-2 focus:ring-zinc-500"
+                        />
+                        <span className="text-sm font-medium text-white">
+                          {prediction.label}
+                        </span>
+                      </div>
+                      <span className="text-xs text-zinc-400">
+                        {(prediction.score * 100).toFixed(1)}%
+                      </span>
+                    </label>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-zinc-500">
+                  Upload and classify an image to see results...
+                </p>
+              )}
+            </div>
+
+            {predictions.length > 0 && (
+              <div className="space-y-3">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Add a description"
+                  className="w-full bg-zinc-900 border border-zinc-700 rounded-md px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-600 focus:border-transparent transition-colors"
+                  onKeyDown={(e) => e.key === 'Enter' && submitToGemini()}
+                />
+                <button
+                  onClick={submitToGemini}
+                  disabled={!input.trim() || !selectedPrediction || isLoading}
+                  className="w-full bg-white text-black text-sm font-medium py-2.5 rounded-md hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                >
+                  {isLoading ? 'Submitting...' : 'Submit'}
+                </button>
+              </div>
             )}
-
-          </div>
-            
-{/* Input area - fixed at bottom */}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              
-              placeholder="Enter your text here..."
-              className="flex-1 bg-zinc-800 text-white border border-zinc-700 rounded-md px-4 py-3 focus:outline-none focus:border-zinc-600"
-            />
-            <button
-              onClick={HandleFinalSubmit}
-              className="bg-white text-black font-medium px-6 py-3 rounded-md hover:bg-zinc-200 transition-colors"
-            >
-              Submit
-            </button>
-         
-       
-
-
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }
-
-
-
-
-
-
-    //  const contentType = response.headers.get('content-type') || '';
-    // if (!response.ok) {
-    //   let errorPayload;
-    //   if (contentType.includes('application/json')) {
-    //     try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
-    //   } else {
-    //     errorPayload = await response.text();
-    //   }
-    //   console.error('API error response:', errorPayload);
-    //   throw new Error(`API returned ${response.status}`);
-    // }
-    // }
-
-
-// async function uploadImage(file) {
-//     const formData = new FormData();
-//     formData.append('image', file);
-
-//     const response = await fetch('/api/classification', {
-//       method: 'POST',
-//       body: formData,
-//     });
-
-//     const contentType = response.headers.get('content-type') || '';
-//     if (!response.ok) {
-//       let errorPayload;
-//       if (contentType.includes('application/json')) {
-//         try { errorPayload = await response.json(); } catch { errorPayload = await response.text(); }
-//       } else {
-//         errorPayload = await response.text();
-//       }
-//       console.error('API error response:', errorPayload);
-//       throw new Error(`API returned ${response.status}`);
-//     }
-
-//     if (!contentType.includes('application/json')) {
-//       const text = await response.text();
-//       throw new Error(`Unexpected non-JSON response: ${text.slice(0,100)}...`);
-//     }
-
-//     const result = await response.json();
-//     return result;
-//   }
