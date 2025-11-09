@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function ItemClientPage({ item, uid }) {
@@ -26,6 +26,15 @@ export default function ItemClientPage({ item, uid }) {
       }
     } catch (error) { }
   };
+
+  useEffect(() => {
+    if (item?.recyclingLocations && item.recyclingLocations.length > 0) {
+      const firstLocation = item.recyclingLocations[0];
+      if (firstLocation?.address) {
+        handleLocationClick(firstLocation.address);
+      }
+    }
+  }, []);
 
   if (!item) {
     return (
