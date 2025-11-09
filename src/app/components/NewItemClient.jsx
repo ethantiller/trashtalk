@@ -216,7 +216,7 @@ export default function ImageUploadPage({ userId }) {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${isDragging ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 hover:border-zinc-600'}`}
+                                className={`border-2 border-dashed rounded-lg p-9 text-center transition-all ${isDragging ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 hover:border-zinc-600'}`}
                             >
                                 <div className="space-y-4">
                                     <div className="text-zinc-400">

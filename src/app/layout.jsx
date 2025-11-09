@@ -1,4 +1,5 @@
 import "./globals.css";
+import "./techy-font.css";
 
 export default function RootLayout({ children }) {
   return (

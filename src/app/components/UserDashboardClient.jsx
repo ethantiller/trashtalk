@@ -53,40 +53,25 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
 
     return (
         <div className="min-h-screen bg-black">
-            {/* Navbar */}
             <nav className="border-b border-zinc-800/50 backdrop-blur-xl bg-black/50 sticky top-0 z-50">
                 <div className="max-w-6xl mx-auto px-6 h-14 flex justify-between items-center">
                     <button
-                        onClick={() => router.push(`/dashboard/${userId}`)}
-                        className="flex items-center gap-2 hover:opacity-70 transition-opacity"
+                        onClick={() => window.open('https://github.com/ethantiller/trashtalk', '_blank')}
+                        className="cursor-pointer flex items-center gap-2 hover:opacity-70 transition-opacity"
                     >
-                        <Image src="/trashtalk.png" alt="Logo" width={20} height={20} />
-                        <span className="text-white font-medium text-sm">Your App</span>
+                        <span className="text-white font-bold text-lg" style={{ fontFamily: 'VT323, monospace', letterSpacing: '0.05em', fontSize: '1.25rem' }}>Trash Talkers</span>
                     </button>
 
                     <div className="relative">
                         <button
                             onClick={() => setShowProfileMenu(!showProfileMenu)}
-                            className="w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center"
+                            className="cursor-pointer w-8 h-8 rounded-full bg-zinc-800 hover:bg-zinc-700 transition-colors flex items-center justify-center"
                         >
-                            <Image src="/user-icon.png" alt="User" width={20} height={20} className="rounded-full invert" />
+                            <span className="text-white font-semibold">TT</span>
                         </button>
 
                         {showProfileMenu && (
                             <div className="absolute right-0 mt-2 w-40 bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl py-1">
-                                <button
-                                    onClick={() => { router.push(`/dashboard/${userId}/settings`); setShowProfileMenu(false); }}
-                                    className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 transition-colors"
-                                >
-                                    Settings
-                                </button>
-                                <button
-                                    onClick={() => { router.push(`/dashboard/${userId}/profile`); setShowProfileMenu(false); }}
-                                    className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 transition-colors"
-                                >
-                                    Profile
-                                </button>
-                                <div className="border-t border-zinc-800 my-1"></div>
                                 <button
                                     onClick={handleLogout}
                                     className="w-full text-left px-3 py-2 text-xs text-red-400 hover:bg-zinc-800 transition-colors"
@@ -99,7 +84,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                 </div>
             </nav>
 
-            {/* Main Content */}
             <main className="max-w-6xl mx-auto px-6 py-6">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
