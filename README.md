@@ -6,6 +6,7 @@ A modern waste classification and recycling platform that helps users identify, 
 ![Firebase](https://img.shields.io/badge/Firebase-12.5.0-orange?style=flat&logo=firebase)
 ![Google Cloud](https://img.shields.io/badge/Google_Cloud-Ready-blue?style=flat&logo=google-cloud)
 ![License](https://img.shields.io/badge/license-Apache%202.0-blue?style=flat)
+[![Build & Deploy](https://github.com/ethantiller/trashtalk/actions/workflows/build-and-deploy.yaml/badge.svg?branch=main)](https://github.com/ethantiller/TrashTalkers.tech/actions/workflows/build-and-deploy.yaml)
 
 ## Features
 
@@ -130,3 +131,4 @@ See `.github/workflows/build-and-deploy.yaml` for details.
 ---
 
 Made with ♻️ by the TrashTalkers team
+
