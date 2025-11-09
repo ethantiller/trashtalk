@@ -2,6 +2,28 @@
 
 export default function ItemClientPage({ item }){
 
+  const handleLocationClick = async (address) => {
+    if (!address) return;
+    
+    try {
+      const response = await fetch('/api/maps', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          origin: item.userLocation,
+          destination: address
+        })
+      });
+      
+      const data = await response.json();
+      console.log('Maps response:', data);
+    } catch (error) {
+      console.error('Error fetching map:', error);
+    }
+  };
+
   if (!item) {
     return (
       <div className="min-h-screen bg-black text-zinc-100 flex items-center justify-center">
@@ -97,7 +119,8 @@ export default function ItemClientPage({ item }){
               {item.recyclingLocations.map((loc, idx) => (
                 <li
                   key={idx}
-                  className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60"
+                  onClick={() => handleLocationClick(loc.address)}
+                  className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60 cursor-pointer hover:bg-zinc-800/60 transition-colors"
                 >
                   <p className="font-medium">{loc.name || ''}</p>
                   <p className="text-sm text-zinc-400">{loc.address || ''}</p>
