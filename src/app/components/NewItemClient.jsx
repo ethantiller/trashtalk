@@ -24,7 +24,6 @@ export default function ImageUploadPage({ userId }) {
     const processFile = (file) => {
         if (!file) return;
         if (!ALLOWED_TYPES.includes(file.type)) {
-            alert('Please upload a JPEG, PNG, or WebP image.');
             return;
         }
         setImage(file);
@@ -80,12 +79,8 @@ export default function ImageUploadPage({ userId }) {
                 if (data.wastePredictions.length > 0) {
                     setSelectedPrediction(data.wastePredictions[0].label);
                 }
-            } else {
-                alert(`Error: ${data.error || 'Classification failed'}`);
             }
         } catch (err) {
-            console.error('Classification error:', err);
-            alert(`Failed: ${err.message}`);
         } finally {
             setIsLoading(false);
         }
@@ -95,7 +90,6 @@ export default function ImageUploadPage({ userId }) {
         if (!input.trim() || !selectedPrediction) return;
         setIsLoading(true);
         if (!navigator.geolocation) {
-            alert('Geolocation is not supported by your browser.');
             setIsLoading(false);
             return;
         }
@@ -169,7 +163,6 @@ export default function ImageUploadPage({ userId }) {
                     };
 
                     if (!userId || !itemHash) {
-                        alert('User ID or item hash is missing.');
                         setIsLoading(false);
                         return;
                     }
@@ -182,16 +175,11 @@ export default function ImageUploadPage({ userId }) {
 
                     router.push(`/dashboard/${uid}/items/${itemHash}`);
                 } catch (err) {
-                    console.error('Gemini / save error:', err);
-                    alert(`Failed: ${err.message}`);
                 } finally {
                     setIsLoading(false);
                 }
             },
             () => {
-                alert(
-                    'Location access is required to submit. Please allow location access and try again.'
-                );
                 setIsLoading(false);
             }
         );
@@ -199,7 +187,6 @@ export default function ImageUploadPage({ userId }) {
 
     return (
         <div className="min-h-screen bg-black">
-            {/* Navbar */}
             <nav className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
@@ -217,40 +204,26 @@ export default function ImageUploadPage({ userId }) {
                     </div>
                 </div>
             </nav>
-
-            {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    {/* Upload Section */}
                     <div className="space-y-6">
                         <div className="mb-6">
                             <h2 className="text-2xl font-bold text-white mb-2">Upload Image</h2>
-                            <p className="text-zinc-400 text-sm">
-                                Upload an image to classify waste type
-                            </p>
+                            <p className="text-zinc-400 text-sm">Upload an image to classify waste type</p>
                         </div>
-
                         {!preview ? (
                             <div
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${isDragging
-                                        ? 'border-zinc-500 bg-zinc-800'
-                                        : 'border-zinc-700 hover:border-zinc-600'
-                                    }`}
+                                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${isDragging ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 hover:border-zinc-600'}`}
                             >
                                 <div className="space-y-4">
                                     <div className="text-zinc-400">
-                                        <p className="font-medium text-white mb-1">
-                                            Drag and drop your image here
-                                        </p>
+                                        <p className="font-medium text-white mb-1">Drag and drop your image here</p>
                                         <p className="text-sm">or click to browse</p>
-                                        <p className="text-xs mt-2 text-zinc-500">
-                                            JPEG, PNG, WebP supported
-                                        </p>
+                                        <p className="text-xs mt-2 text-zinc-500">JPEG, PNG, WebP supported</p>
                                     </div>
-
                                     <label className="inline-block">
                                         <input
                                             type="file"
@@ -258,9 +231,7 @@ export default function ImageUploadPage({ userId }) {
                                             onChange={handleFileSelect}
                                             className="hidden"
                                         />
-                                        <span className="inline-block bg-white text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-zinc-200 transition-colors cursor-pointer">
-                                            Select File
-                                        </span>
+                                        <span className="inline-block bg-white text-black text-sm font-medium px-4 py-2 rounded-md hover:bg-zinc-200 transition-colors cursor-pointer">Select File</span>
                                     </label>
                                 </div>
                             </div>
@@ -275,7 +246,6 @@ export default function ImageUploadPage({ userId }) {
                                         height={600}
                                     />
                                 </div>
-
                                 <div className="flex items-center justify-between p-4 bg-zinc-900 rounded-lg border border-zinc-800">
                                     <div className="flex items-center gap-3">
                                         <Image
@@ -286,56 +256,35 @@ export default function ImageUploadPage({ userId }) {
                                             height={40}
                                         />
                                         <div>
-                                            <p className="text-sm font-medium text-white">
-                                                {image?.name}
-                                            </p>
-                                            {image && (
-                                                <p className="text-xs text-zinc-500">
-                                                    {(image.size / 1024 / 1024).toFixed(2)} MB
-                                                </p>
-                                            )}
+                                            <p className="text-sm font-medium text-white">{image?.name}</p>
+                                            {image && <p className="text-xs text-zinc-500">{(image.size / 1024 / 1024).toFixed(2)} MB</p>}
                                         </div>
                                     </div>
                                     <button
                                         onClick={handleRemove}
                                         className="text-sm text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                                    >
-                                        Remove
-                                    </button>
+                                    >Remove</button>
                                 </div>
-
                                 <button
                                     onClick={classifyImage}
                                     disabled={isLoading}
                                     className="cursor-pointer w-full bg-white text-black text-sm font-medium py-2.5 rounded-md hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                >
-                                    {isLoading ? 'Processing...' : 'Classify Image'}
-                                </button>
+                                >{isLoading ? 'Processing...' : 'Classify Image'}</button>
                             </div>
                         )}
                     </div>
-
-                    {/* Results Section */}
                     <div className="space-y-6">
                         <div className="mb-6">
-                            <h2 className="text-2xl font-bold text-white mb-2">
-                                Classification Results
-                            </h2>
-                            <p className="text-zinc-400 text-sm">
-                                Select the correct classification
-                            </p>
+                            <h2 className="text-2xl font-bold text-white mb-2">Classification Results</h2>
+                            <p className="text-zinc-400 text-sm">Select the correct classification</p>
                         </div>
-
                         <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 min-h-[200px]">
                             {predictions.length > 0 ? (
                                 <div className="space-y-3">
                                     {predictions.map((prediction, index) => (
                                         <label
                                             key={index}
-                                            className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all ${selectedPrediction === prediction.label
-                                                    ? 'bg-zinc-800 border-white'
-                                                    : 'bg-zinc-900 border-zinc-700 hover:border-zinc-600'
-                                                }`}
+                                            className={`flex items-center justify-between p-3 rounded-md border cursor-pointer transition-all ${selectedPrediction === prediction.label ? 'bg-zinc-800 border-white' : 'bg-zinc-900 border-zinc-700 hover:border-zinc-600'}`}
                                         >
                                             <div className="flex items-center gap-3">
                                                 <input
@@ -346,23 +295,16 @@ export default function ImageUploadPage({ userId }) {
                                                     onChange={(e) => setSelectedPrediction(e.target.value)}
                                                     className="w-4 h-4 text-white bg-zinc-800 border-zinc-600 focus:ring-2 focus:ring-zinc-500"
                                                 />
-                                                <span className="text-sm font-medium text-white">
-                                                    {prediction.label}
-                                                </span>
+                                                <span className="text-sm font-medium text-white">{prediction.label}</span>
                                             </div>
-                                            <span className="text-xs text-zinc-400">
-                                                {(prediction.score * 100).toFixed(1)}%
-                                            </span>
+                                            <span className="text-xs text-zinc-400">{(prediction.score * 100).toFixed(1)}%</span>
                                         </label>
                                     ))}
                                 </div>
                             ) : (
-                                <p className="text-sm text-zinc-500">
-                                    Upload and classify an image to see results...
-                                </p>
+                                <p className="text-sm text-zinc-500">Upload and classify an image to see results...</p>
                             )}
                         </div>
-
                         {predictions.length > 0 && (
                             <div className="space-y-3">
                                 <input
@@ -377,9 +319,7 @@ export default function ImageUploadPage({ userId }) {
                                     onClick={submitToGemini}
                                     disabled={!input.trim() || !selectedPrediction || isLoading}
                                     className="w-full bg-white text-black text-sm font-medium py-2.5 rounded-md hover:bg-zinc-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                                >
-                                    {isLoading ? 'Submitting...' : 'Submit'}
-                                </button>
+                                >{isLoading ? 'Submitting...' : 'Submit'}</button>
                             </div>
                         )}
                     </div>
