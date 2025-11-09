@@ -42,7 +42,7 @@ export default function Welcome() {
       {/* Header */}
       <header className="absolute top-0 left-0 right-0 flex justify-between items-center px-6 md:px-12 py-6 md:py-8 z-10">
         <div className="text-white text-lg md:text-2xl font-semibold tracking-wide">
-          TRASHTALK.TECH
+          TRASHTALKERS.TECH
         </div>
         <div className="flex gap-2 md:gap-4">
           <button 
@@ -63,7 +63,7 @@ export default function Welcome() {
       {/* Main Content */}
       <main className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 text-white text-center px-6">
         <h1 className="text-4xl md:text-7xl font-semibold leading-tight mb-4 md:mb-6 tracking-wide">
-          TRASHTALK.TECH
+          TRASHTALKERS.TECH
         </h1>
         <p className="text-base md:text-xl font-light opacity-90">
           Know Where It Goes.
