@@ -43,46 +43,16 @@ export default function ItemClientPage({ item }){
   `;
 
   return (
-   <div className="h-screen bg-black text-zinc-100 overflow-hidden">
-  <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
-  <main className="h-full px-4 py-8 overflow-hidden">
-    <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-8">
-      
-      {/* LEFT SIDE - Item Details */}
-      <div className="h-full overflow-y-auto pr-4 custom-scrollbar">
-        {/* Back Button and Title */}
-        <div className="flex items-center mb-5">
-          <button 
-            onClick={() => window.history.back()} 
-            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg "
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
-            
-          </button>
-          <h1 className="text-4xl font-bold flex-1 text-center">"{item.itemName}" Recycling</h1>
-        </div>
-        
-        <p className="text-zinc-400 mb-7" >Item Description: {item.itemDescription}</p>
-        <p className="text-zinc-400 space-y-7" >Recycling Details:</p>
-        <p className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg" >{item.itemAnalysis}</p>
-
-        <section className="space-y-2">
-          <p className="text-sm text-zinc-400">
-            Result:{" "}
-            <span className={item.itemWinOrLose === "win" ? "text-green-400" : "text-red-400"}>
-              {item.itemWinOrLose}
-            </span>
-          </p>
-          <p className="text-sm text-zinc-500">
-            Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
-          </p>
-        </section>
+    <div className="min-h-screen bg-black text-zinc-100">
+      <main className="max-w-3xl mx-auto px-4 py-8">
+        <h1 className="text-3xl font-bold mb-4">{item.itemName}</h1>
+        <p className="text-sm text-zinc-500 mb-6">
+          Hash: <span className="font-mono">{item.itemHash}</span>
+        </p>
 
         {/* Image */}
         {item.itemPhoto && (
-          <div className="rounded-lg overflow-hidden border border-zinc-800">
+          <div className="mb-6 rounded-lg overflow-hidden border border-zinc-800">
             <img
               src={item.itemPhoto}
               alt={item.itemName}
@@ -90,38 +60,64 @@ export default function ItemClientPage({ item }){
             />
           </div>
         )}
-      </div>
 
-      {/* RIGHT SIDE - Map & Locations */}
-      <div className="h-full flex flex-col gap-6 overflow-hidden">
-        {/* Reserved space for Google Maps - Takes up 60% of height */}
-        <div className="h-[60%] bg-zinc-900 border border-zinc-800 rounded-lg flex items-center justify-center flex-shrink-0">
-          <p className="text-zinc-500">Google Maps will go here</p>
-        </div>
+        {/* Basic info */}
+        <section className="mb-6 space-y-2">
+          <h2 className="text-xl font-semibold">Details</h2>
+          <p className="text-zinc-300">{item.itemDescription}</p>
+          <p className="text-sm text-zinc-400">
+            Result:{" "}
+            <span className={item.itemWinOrLose === "win" ? "text-green-400" : "text-red-400"}>
+              {item.itemWinOrLose}
+            </span>
+          </p>
+          {createdAtDate && (
+            <p className="text-sm text-zinc-500">
+              Created: {createdAtDate.toLocaleString()}
+            </p>
+          )}
+          <p className="text-sm text-zinc-500">
+            Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
+          </p>
+          {item.userLocation && (
+            <p className="text-sm text-zinc-500">
+              User Location:{" "}
+              <span className="font-mono">
+                {item.userLocation.latitude ?? "N/A"}, {item.userLocation.longitude ?? "N/A"}
+              </span>
+            </p>
+          )}
+        </section>
 
-        {/* Recycling locations - Takes up remaining 40% */}
+        {/* Recycling locations */}
         {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
-          <section className="h-[40%] flex flex-col overflow-hidden">
-            <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Recycling Locations</h2>
-            <div className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
+          <section className="mb-6">
+            <h2 className="text-xl font-semibold mb-3">Recycling Locations</h2>
+            <ul className="space-y-3">
               {item.recyclingLocations.map((loc, idx) => (
-                <div
+                <li
                   key={idx}
                   className="border border-zinc-800 rounded-lg p-3 bg-zinc-900/60"
                 >
-                  <p className="font-medium">{loc.name}</p>
-                  <p className="text-sm text-zinc-400">{loc.address}</p>
-                  <p className="text-xs text-zinc-500 mt-1"> Distance: {loc.distanceFromAddress?.toFixed?.(2)} km </p>
-                  <p className="text-xs text-zinc-500">Coords: {loc.lat}, {loc.long} </p>
-                </div>
+                  <p className="font-medium">{loc.name || ''}</p>
+                  <p className="text-sm text-zinc-400">{loc.address || ''}</p>
+                  <p className="text-xs text-zinc-500 mt-1">
+                    Distance: {typeof loc.distanceFromAddress === 'number' ? loc.distanceFromAddress.toFixed(2) : ''} km
+                  </p>
+                  <p className="text-xs text-zinc-500">
+                    Coords: {loc.lat ?? ''}, {loc.long ?? ''}
+                  </p>
+                </li>
               ))}
-            </div>
+            </ul>
           </section>
         )}
-      </div>
 
+        {/* Debug / raw data (optional) */}
+        {/* <pre className="mt-8 text-xs text-zinc-400 bg-zinc-900 p-4 rounded-lg overflow-x-auto">
+          {JSON.stringify(item, null, 2)}
+        </pre> */}
+      </main>
     </div>
-  </main>
-</div>
   );
 }
