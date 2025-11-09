@@ -183,8 +183,7 @@ export default function ItemClientPage({ item, uid }) {
                     >
                       <p className="font-medium">{loc.name}</p>
                       <p className="text-sm text-zinc-400">{loc.address}</p>
-                      <p className="text-xs text-zinc-500 mt-1"> Distance: {loc.distanceFromAddress?.toFixed?.(2)} km </p>
-                      <p className="text-xs text-zinc-500">Coords: {loc.lat}, {loc.long} </p>
+                      <p className="text-xs text-zinc-500 py-1">Coords: {loc.lat.toFixed(2)}, {loc.long.toFixed(2)} </p>
                     </div>
                   ))}
                 </div>
