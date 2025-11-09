@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { adminAuth } from "@/app/lib/firebaseAdmin";
+import { getAdminAuth } from "@/app/lib/firebaseAdmin";
 
 export default async function DashboardRootPage() {
   const cookieStore = await cookies();
@@ -12,7 +12,7 @@ export default async function DashboardRootPage() {
 
   let decodedToken;
   try {
-    decodedToken = await adminAuth.verifyIdToken(token);
+  decodedToken = await getAdminAuth().verifyIdToken(token);
   } catch (err) {
     console.error("Invalid Firebase token", err);
     redirect("/login");
