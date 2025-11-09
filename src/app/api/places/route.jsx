@@ -94,9 +94,18 @@ export async function POST(request) {
       'places'
     );
 
+    const mappedPlaces = (placesResponse.places || [])
+      .slice(0, 5)
+      .map((place) => ({
+        name: place.displayName?.text || '',
+        latitude: place.location?.latitude || null,
+        longitude: place.location?.longitude || null,
+        address: place.formattedAddress || '',
+      }));
+
     return NextResponse.json({
       success: true,
-      places: placesResponse.places || [],
+      places: mappedPlaces,
     });
   } catch (error) {
     console.error('Places API error:', error);
