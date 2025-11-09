@@ -18,8 +18,7 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
     };
 
     const handleItemClick = (itemHash) => {
-        // Navigate to item detail page using itemHash
-        router.push(`/item/${itemHash}`);
+        router.push(`/dashboard/${userId}/items/${itemHash}`);
     };
 
     const handleLogout = async () => {
@@ -175,10 +174,13 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
 
                     {/* Existing Items */}
                     {sortedItems.map((item) => (
-                        <button
+                        <div
                             key={item.id}
+                            role="button"
+                            tabIndex={0}
                             onClick={() => handleItemClick(item.itemHash)}
-                            className="group bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-600 hover:shadow-lg hover:shadow-zinc-900/50 transition-all cursor-pointer text-left"
+                            onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') handleItemClick(item.itemHash); }}
+                            className="group bg-zinc-900 border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-600 hover:shadow-lg hover:shadow-zinc-900/50 transition-all cursor-pointer text-left focus:outline-none"
                         >
                             {/* Image */}
                             <div className="bg-zinc-800 w-full aspect-video flex items-center justify-center overflow-hidden">
@@ -236,7 +238,7 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                                     {new Date(item.createdAt.toDate ? item.createdAt.toDate() : item.createdAt).toLocaleDateString()}
                                 </p>
                             </div>
-                        </button>
+                        </div>
                     ))}
                 </div>
 

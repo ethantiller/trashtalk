@@ -26,5 +26,10 @@ export default async function ImageUploadPageServer({ params }) {
     redirect(`/dashboard/${loggedInUid}`);
   }
 
-  return <ImageUploadPage userId={loggedInUid} />;
+  return (
+    <UserDashboardClient
+      userId={loggedInUid}
+      initialItems={await getUserItems(loggedInUid)}
+    />
+  );
 }

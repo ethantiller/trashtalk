@@ -1,5 +1,5 @@
 import { db } from "../../firebase";
-import { doc, setDoc, getDocs, collection } from "firebase/firestore";
+import { doc, setDoc, getDocs, getDoc, collection } from "firebase/firestore";
 
 
 const USERS_COLLECTION = "users";
@@ -57,26 +57,28 @@ export async function getUserItems(userId) {
     ITEMS_SUBCOLLECTION
   );
   const itemsSnapshot = await getDocs(itemsCollectionRef);
-
-  const itemsObj = {};
+  const itemsArray = [];
 
   itemsSnapshot.forEach((docSnap) => {
     const data = docSnap.data();
-    const itemHash = docSnap.id; // doc id is the hash
-    itemsObj[itemHash] = {
+    const itemHash = docSnap.id; // ← FIXED: use docSnap.id instead of docSnap.itemHash
+
+    itemsArray.push({
+      id: itemHash,
+      itemHash: itemHash,
       itemName: data.itemName,
       itemPhoto: data.itemPhoto,
       itemDescription: data.itemDescription,
       itemWinOrLose: data.itemWinOrLose,
       recyclingLocations: data.recyclingLocations,
-      createdAt: data.createdAt,
+      createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
       confidenceRating: data.confidenceRating,
-    };
+    });
   });
 
-  return {
-    items: itemsObj,
-  };
+  return itemsArray; // ← FIXED: return array instead of object
 }
 
 export async function getItemByHash(userId, itemHash) {
@@ -100,7 +102,9 @@ export async function getItemByHash(userId, itemHash) {
       itemDescription: data.itemDescription,
       itemWinOrLose: data.itemWinOrLose,
       recyclingLocations: data.recyclingLocations,
-      createdAt: data.createdAt,
+      createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
+        ? data.createdAt.toDate().toISOString()
+        : (typeof data.createdAt === 'string' ? data.createdAt : new Date().toISOString()),
       confidenceRating: data.confidenceRating,
     },
   };
