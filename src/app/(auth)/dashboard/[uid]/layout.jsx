@@ -1,4 +1,4 @@
-import { adminAuth } from "@/app/lib/firebaseAdmin";
+import { getAdminAuth } from "@/app/lib/firebaseAdmin";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -12,7 +12,7 @@ export default async function UserLayout({ children, params }) {
 
     let decodedToken;
     try {
-        decodedToken = await adminAuth.verifyIdToken(token);
+    decodedToken = await getAdminAuth().verifyIdToken(token);
     } catch (err) {
         console.error("Invalid Firebase token", err);
         redirect("/login");

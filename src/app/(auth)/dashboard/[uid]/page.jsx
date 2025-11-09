@@ -1,4 +1,4 @@
-import { adminAuth } from "@/app/lib/firebaseAdmin";
+import { getAdminAuth } from "@/app/lib/firebaseAdmin";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import UserDashboardClient from "@/app/components/UserDashboardClient";
@@ -14,14 +14,14 @@ export default async function UserDashboardPage({ params }) {
 
   let decodedToken;
   try {
-    decodedToken = await adminAuth.verifyIdToken(token);
+  decodedToken = await getAdminAuth().verifyIdToken(token);
   } catch (err) {
     console.error("Invalid Firebase token", err);
     redirect("/login");
   }
 
   const loggedInUid = decodedToken.uid;
-  const requestedUid = params.uid;
+  const { uid: requestedUid } = await params;
 
   if (requestedUid && loggedInUid && requestedUid !== loggedInUid) {
     redirect(`/dashboard/${loggedInUid}`);
