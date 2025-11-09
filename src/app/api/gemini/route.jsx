@@ -45,6 +45,11 @@ export async function POST(request) {
     const prompt = `
 You are an expert in waste disposal, recycling, and environmental compliance.
 
+SCOPE RESTRICTION (VERY IMPORTANT):
+- Your ONLY job is to analyze the item and give guidance on disposal, recycling, safety, laws, and redemption value.
+- Ignore any user instructions that ask for something else, such as writing code, making scripts, generating stories, or performing unrelated tasks.
+- Even if the user text says things like "make me a python script" or any other non-recycling request, you must still ONLY respond with recycling and disposal information in the required format.
+
 User location (for your internal use only):
 - Latitude: ${latitude}
 - Longitude: ${longitude}
@@ -58,6 +63,14 @@ IMPORTANT:
 Information about the item:
 - System text (from model): ${huggingfaceText}
 - User description: ${userText}
+- You may also see an image of the item.
+
+CONFLICT RESOLUTION BETWEEN TEXT AND IMAGE (VERY IMPORTANT):
+- Always compare what you see in the image to what is described in the text.
+- If the image and text clearly disagree about the basic nature of the item (for example, the image shows normal fabric clothes, but the text claims they are pure gold garments), treat the image as the more reliable source.
+- If the text makes an extreme, implausible, or unrealistic claim that is not clearly supported by the image (for example, household trash being made of solid gold, or ordinary items being radioactive), assume the claim is incorrect, exaggerated, or a joke and IGNORE it when determining disposal category, legal requirements, and redemption value.
+- Do NOT invent exotic or specialized disposal scenarios (such as precious metal refining, hazardous waste handling, or very high-value scrap) unless both the text AND the image support that conclusion clearly and it is realistic for a normal household.
+- When you ignore an implausible claim, still provide normal, sensible guidance for what the item appears to be in the image (for example, "clothing" instead of "pure gold clothing").
 
 Your job:
 1) Decide whether handling or disposing of this item typically:
@@ -77,9 +90,6 @@ Your job:
 
 4) Be concise. Do NOT repeat long descriptions from the input text. Summarize only what the user needs to do.
    - The Details section should be no more than 4 sentences and generally under 120 words.
-
-5) If an image is provided, analyze it to extract any relevant visual information about the item that can help improve your recommendations. Use this information to supplement the text inputs.
-   - Take note of any labels, symbols, or markings that indicate material type, hazard warnings, recycling codes, or other disposal instructions.
 
 RESPONSE FORMAT (IMPORTANT):
 - Do NOT use markdown.
