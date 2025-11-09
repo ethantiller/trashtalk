@@ -5,6 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 import Image from 'next/image';
 import { addItemToUser } from '@/app/lib/firebaseFunctions/firebaseDB/firebaseDBHelpers';
 import { useParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 
 export default function ImageUploadPage({ userId }) {
     const params = useParams();
@@ -18,6 +19,7 @@ export default function ImageUploadPage({ userId }) {
     const [isLoading, setIsLoading] = useState(false);
     const [geminiResponse, setGeminiResponse] = useState('');
     const [placesResponse, setPlacesResponse] = useState([]);
+    const router = useRouter();
 
     const ALLOWED_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
 
@@ -154,7 +156,6 @@ export default function ImageUploadPage({ userId }) {
                     const selectedPredictionObj = predictions.find(
                         (p) => p.label === selectedPrediction
                     );
-                    // FIX: Provide a default value if confidenceRating is undefined
                     const confidenceRating = selectedPredictionObj?.score ?? 0;
 
                     const itemData = {
@@ -175,7 +176,8 @@ export default function ImageUploadPage({ userId }) {
                     }
 
                     await addItemToUser(userId, itemData);
-                    alert('Submission successful and item saved!');
+
+                    router.push(`/dashboard/${uid}/items/${itemHash}`);
                 } catch (err) {
                     console.error('Gemini / save error:', err);
                     alert(`Failed: ${err.message}`);
