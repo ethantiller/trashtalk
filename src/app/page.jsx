@@ -37,7 +37,7 @@ export default function Welcome() {
 
       <header className="absolute top-0 left-0 right-0 flex justify-between items-center px-[3vw] py-[2.5vh] z-10">
         <div className="text-white font-semibold tracking-wide text-[clamp(1rem,3vw,1.5rem)]">
-          TRASHTALKERS.TECH
+          Recycle Smarter
         </div>
         <div className="flex gap-[1vw]">
           <button
