@@ -43,18 +43,26 @@ Information about the item:
 
 Your job:
 1) Decide whether handling or disposing of this item typically:
-   - costs the user money (fees, disposal charges, etc.),
-   - makes the user money (refunds, buy-back programs, scrap value, etc.), or
-   - is neutral (no common fees or payments).
+   - is Profitable (the user can usually earn money from recycling, refunds, scrap value, etc.),
+   - is Non-Profitable (the user usually has to pay disposal fees, service charges, etc.), or
+   - is Neutral (no common fees or payments either way).
 
-2) Give clear, practical guidance on how the user should dispose of or handle the item safely, tailored to their likely state/jurisdiction.
+2) Provide an estimated redemption value in U.S. dollars for a typical quantity that a household might dispose of at one time.
+   - If it is Profitable, the redemption value must be a positive number (e.g., 5.00).
+   - If it is Non-Profitable, the redemption value must be a negative number (e.g., -10.00).
+   - If it is Neutral, the redemption value must be 0.
+   - If you are unsure, make a reasonable estimate and clearly state that it is approximate in the Details section.
+
+3) Give clear, practical guidance on how the user should dispose of or handle the item safely, tailored to their likely state/jurisdiction.
 
 RESPONSE FORMAT (IMPORTANT):
 - Do NOT use markdown.
 - Do NOT include bullet points or numbered lists.
-- Use exactly these two headings and this structure:
+- Use exactly these three headings and this structure, in this order:
 
 Cost: <one of: Profitable, Non-Profitable, Neutral>
+
+Redemption Value: <a numeric value in US dollars, with no currency symbol, such as -.1, 0, 2.5, 10>
 
 Details: <one or more short paragraphs of advice>
 
@@ -64,6 +72,7 @@ Details MUST include:
 - Any common transportation requirements (e.g., keep in original container, keep upright, do not mix with other chemicals, take directly to a hazardous waste facility, etc.).
 - Any typical state or local law considerations based on the inferred state and county (for example, hazardous waste rules, electronic waste bans from landfills, paint disposal rules, etc.).
 - If you are not sure of the exact local laws, clearly say that regulations vary by city/county, suggest checking the local or state government website, and name the likely state and a typical authority (for example “state environmental agency” or “county solid waste department”).
+- Briefly explain how you arrived at the estimated redemption value (for example, typical deposit per container or typical disposal fee ranges).
 
 Be concise, practical, and user-friendly.
 `;

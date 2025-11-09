@@ -142,13 +142,19 @@ export default function ImageUploadPage({ userId }) {
                     );
                     const confidenceRating = selectedPredictionObj?.score ?? 0;
 
+
                     let itemWinOrLose = 'Neutral';
                     let itemDescription = geminiResp.answer || '';
+                    let redemptionValue = 0.1;
                     if (geminiResp.answer) {
                         const costMatch = geminiResp.answer.match(/Cost:\s*([^\n]*)/);
                         const detailsMatch = geminiResp.answer.match(/Details:\s*([\s\S]*)/);
+                        const redemptionMatch = geminiResp.answer.match(/Redemption Value:\s*\$?(-?\d+(?:\.\d+)?)/i);
                         if (costMatch) itemWinOrLose = costMatch[1].trim();
                         if (detailsMatch) itemDescription = detailsMatch[1].trim();
+                        if (redemptionMatch) {
+                            redemptionValue = parseFloat(redemptionMatch[1]);
+                        }
                     }
 
                     const itemData = {
@@ -157,6 +163,7 @@ export default function ImageUploadPage({ userId }) {
                         itemPhoto: preview || '',
                         itemDescription,
                         itemWinOrLose,
+                        redemptionValue,
                         recyclingLocations,
                         createdAt: new Date(),
                         confidenceRating,
@@ -186,7 +193,7 @@ export default function ImageUploadPage({ userId }) {
     };
 
     return (
-        <div className="min-h-screen bg-black">
+        <div className="min-h-screen bg-black" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
             <nav className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex justify-between items-center h-16">
@@ -216,7 +223,7 @@ export default function ImageUploadPage({ userId }) {
                                 onDragOver={handleDragOver}
                                 onDragLeave={handleDragLeave}
                                 onDrop={handleDrop}
-                                className={`border-2 border-dashed rounded-lg p-12 text-center transition-all ${isDragging ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 hover:border-zinc-600'}`}
+                                className={`border-2 border-dashed rounded-lg p-9 text-center transition-all ${isDragging ? 'border-zinc-500 bg-zinc-800' : 'border-zinc-700 hover:border-zinc-600'}`}
                             >
                                 <div className="space-y-4">
                                     <div className="text-zinc-400">

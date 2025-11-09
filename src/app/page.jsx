@@ -17,7 +17,7 @@ export default function Welcome() {
   }, []);
 
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
       {/* Background Video or Black Background */}
       {!isMobile ? (
         <video

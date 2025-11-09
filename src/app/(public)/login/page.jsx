@@ -75,10 +75,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex items-center justify-center p-4">
+    <div className="min-h-screen bg-black flex items-center justify-center p-4" style={{ fontFamily: "'Zalando Sans SemiExpanded', sans-serif" }}>
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white">Trash Talk</h1>
+          <h1 className="text-4xl font-bold text-white">TrashTalkers.tech</h1>
         </div>
         <div className="bg-zinc-900 rounded-lg border border-zinc-800 p-8">
           <h2 className="text-3xl font-bold text-white text-center mb-2">
