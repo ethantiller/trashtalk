@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { deleteCookie } from 'cookies-next';
-import Image from 'next/image';
 import { deleteItemFromUser } from '../lib/firebaseFunctions/firebaseDB/firebaseDBHelpers';
 
 export default function UserDashboardClient({ userId, initialItems = [] }) {
@@ -28,8 +27,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
             await deleteItemFromUser(userId, itemHash);
             setItems(prevItems => prevItems.filter(item => item.id !== itemId));
         } catch (error) {
-            console.error('Error deleting item:', error);
-            alert('Failed to delete item. Please try again.');
         } finally {
             setDeletingItemId(null);
         }
@@ -85,7 +82,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
             </nav>
 
             <main className="max-w-6xl mx-auto px-6 py-6">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <h1 className="text-2xl font-semibold text-white">Your Items</h1>
                     <div className="flex gap-2">
@@ -109,9 +105,7 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                     </div>
                 </div>
 
-                {/* Items Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-                    {/* Add Item Card */}
                     <button
                         onClick={handleAddItem}
                         className="cursor-pointer group bg-zinc-900/50 border border-dashed border-zinc-800 rounded-lg p-4 hover:border-zinc-700 hover:bg-zinc-900 transition-all min-h-[200px] flex flex-col items-center justify-center"
@@ -122,14 +116,12 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                         <p className="text-zinc-500 text-xs group-hover:text-zinc-400">Add image</p>
                     </button>
 
-                    {/* Existing Items */}
                     {sortedItems.map((item) => (
                         <div
                             key={item.id}
                             onClick={() => handleItemClick(item.itemHash)}
                             className="group bg-zinc-900/50 border border-zinc-800 rounded-lg overflow-hidden hover:border-zinc-700 hover:bg-zinc-900 transition-all cursor-pointer relative"
                         >
-                            {/* Delete Button */}
                             <button
                                 onClick={(e) => handleDeleteItem(e, item.itemHash, item.id)}
                                 disabled={deletingItemId === item.id}
@@ -167,7 +159,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                     ))}
                 </div>
 
-                {/* Empty State */}
                 {sortedItems.length === 0 && items.length === 0 && (
                     <div className="text-center py-16">
                         <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -180,7 +171,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                     </div>
                 )}
 
-                {/* No Search Results */}
                 {sortedItems.length === 0 && items.length > 0 && (
                     <div className="text-center py-16">
                         <div className="w-12 h-12 bg-zinc-900 rounded-lg flex items-center justify-center mx-auto mb-3">
@@ -194,7 +184,6 @@ export default function UserDashboardClient({ userId, initialItems = [] }) {
                 )}
             </main>
 
-            {/* Click outside to close menu */}
             {showProfileMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)}></div>}
         </div>
     );

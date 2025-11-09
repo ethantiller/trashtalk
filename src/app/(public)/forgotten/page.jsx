@@ -22,7 +22,6 @@ export default function ForgotPasswordPage() {
       setSuccess(true);
       setEmail('');
     } catch (err) {
-      console.error('Password reset error:', err);
       if (err.code === 'auth/user-not-found') {
         setError('No account found with this email address.');
       } else if (err.code === 'auth/invalid-email') {
@@ -46,7 +45,7 @@ export default function ForgotPasswordPage() {
             Forgot password?
           </h2>
           <p className="text-zinc-400 text-center mb-8">
-            {success 
+            {success
               ? "Check your email for reset instructions"
               : "Enter your email and we'll send you a reset link"
             }
@@ -59,8 +58,8 @@ export default function ForgotPasswordPage() {
                   Password reset email sent! Check your inbox and follow the instructions to reset your password.
                 </p>
               </div>
-              
-              <Link 
+
+              <Link
                 href="/login"
                 className="block w-full bg-white text-black font-medium py-3 rounded-md hover:bg-zinc-200 transition-colors text-center"
               >
@@ -100,8 +99,8 @@ export default function ForgotPasswordPage() {
               </button>
 
               <div className="text-center">
-                <Link 
-                  href="/login" 
+                <Link
+                  href="/login"
                   className="text-sm text-zinc-400 hover:text-white transition-colors"
                 >
                   Back to login

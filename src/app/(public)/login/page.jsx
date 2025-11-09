@@ -49,7 +49,6 @@ export default function LoginPage() {
 
       router.push(`/dashboard/${user.uid}`);
     } catch (err) {
-      console.error('Login error:', err);
       setError(err.message || 'Failed to log in');
     }
   };
@@ -69,7 +68,6 @@ export default function LoginPage() {
 
       router.push(`/dashboard/${user.uid}`);
     } catch (err) {
-      console.error('Google login error:', err);
       setError(err.message || 'Failed to continue with Google');
     }
   };

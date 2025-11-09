@@ -2,8 +2,6 @@ import { db } from "../../firebase";
 import { doc, setDoc, getDoc } from "firebase/firestore";
 
 export async function createUserProfile(userId, email) {
-  // Created at time, items,
-  // Time needs to be in ISO format for consistency
   const createdAt = new Date().toISOString();
 
   const userProfile = {
@@ -13,13 +11,12 @@ export async function createUserProfile(userId, email) {
     items: []
   }
 
-  const userDocRef = doc(db, "users", userId); // Pulls the reference users/{uid}/
+  const userDocRef = doc(db, "users", userId);
 
   await setDoc(userDocRef, userProfile);
 }
 
 export async function getUserProfile(userId) {
-  //
   const userDocRef = doc(db, "users", userId);
   const userDocSnap = await getDoc(userDocRef);
 

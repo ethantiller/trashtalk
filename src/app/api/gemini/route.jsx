@@ -124,14 +124,12 @@ Be concise, practical, and user-friendly.
     }
 
     if (!result || !result.response) {
-      console.error('Invalid response from Gemini:', result);
       return NextResponse.json({
         success: false,
         error: 'No response from AI model'
       }, { status: 500 });
     }
 
-    console.log('\n\n\nGemini response:', result.response.text());
     const response = result.response.text();
 
     return NextResponse.json({
@@ -140,9 +138,6 @@ Be concise, practical, and user-friendly.
     });
 
   } catch (error) {
-    console.error('Error in Gemini API route:', error);
-
-    // Handle specific error types
     if (error.message?.includes('API key')) {
       return NextResponse.json({
         success: false,
@@ -164,7 +159,6 @@ Be concise, practical, and user-friendly.
       }, { status: 400 });
     }
 
-    // Generic error response
     return NextResponse.json({
       success: false,
       error: 'Failed to generate response',
