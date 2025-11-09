@@ -142,13 +142,19 @@ export default function ImageUploadPage({ userId }) {
                     );
                     const confidenceRating = selectedPredictionObj?.score ?? 0;
 
+
                     let itemWinOrLose = 'Neutral';
                     let itemDescription = geminiResp.answer || '';
+                    let redemptionValue = 0.1;
                     if (geminiResp.answer) {
                         const costMatch = geminiResp.answer.match(/Cost:\s*([^\n]*)/);
                         const detailsMatch = geminiResp.answer.match(/Details:\s*([\s\S]*)/);
+                        const redemptionMatch = geminiResp.answer.match(/Redemption Value:\s*\$?(-?\d+(?:\.\d+)?)/i);
                         if (costMatch) itemWinOrLose = costMatch[1].trim();
                         if (detailsMatch) itemDescription = detailsMatch[1].trim();
+                        if (redemptionMatch) {
+                            redemptionValue = parseFloat(redemptionMatch[1]);
+                        }
                     }
 
                     const itemData = {
@@ -157,6 +163,7 @@ export default function ImageUploadPage({ userId }) {
                         itemPhoto: preview || '',
                         itemDescription,
                         itemWinOrLose,
+                        redemptionValue,
                         recyclingLocations,
                         createdAt: new Date(),
                         confidenceRating,

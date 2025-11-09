@@ -43,6 +43,7 @@ export async function addItemToUser(userId, itemData) {
     itemPhoto: itemData.itemPhoto,
     itemDescription: itemData.itemDescription,
     itemWinOrLose: itemData.itemWinOrLose,
+    redemptionValue: itemData.redemptionValue,
     recyclingLocations: itemData.recyclingLocations,
     createdAt: itemData.createdAt,
     confidenceRating: itemData.confidenceRating,
@@ -71,6 +72,7 @@ export async function getUserItems(userId) {
       itemPhoto: data.itemPhoto,
       itemDescription: data.itemDescription,
       itemWinOrLose: data.itemWinOrLose,
+      redemptionValue: data.redemptionValue,
       recyclingLocations: data.recyclingLocations,
       createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
         ? data.createdAt.toDate().toISOString()
@@ -103,6 +105,7 @@ export async function getItemByHash(userId, itemHash) {
       itemPhoto: data.itemPhoto,
       itemDescription: data.itemDescription,
       itemWinOrLose: data.itemWinOrLose,
+      redemptionValue: data.redemptionValue,
       recyclingLocations: data.recyclingLocations,
       createdAt: data.createdAt && typeof data.createdAt.toDate === 'function'
         ? data.createdAt.toDate().toISOString()
