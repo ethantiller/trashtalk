@@ -1,6 +1,18 @@
 "use client";
 
-export default function ItemClientPage({ }){  //item }) {
+export default function ItemClientPage({ item }){
+
+  if (!item) {
+    return (
+      <div className="min-h-screen bg-black text-zinc-100 flex items-center justify-center">
+        <p className="text-zinc-400 text-lg">Item not found.</p>
+      </div>
+    );
+  }
+
+   // createdAt is always an ISO string or missing
+  const createdAtDate = item.createdAt ? new Date(item.createdAt) : null;
+
   
   // Custom scrollbar styles
   const scrollbarStyles = `
@@ -29,16 +41,7 @@ export default function ItemClientPage({ }){  //item }) {
       scrollbar-color: #27272a #09090b;
     }
   `;
-  
- 
-  const item = {itemName:"Plastic Bottle", itemAnalysis:"You should try throwing it intasdf adsfasf asdfaf asdfasf asdfasdf asdfasdf o the ocean", itemHash:"abc123", itemDescription:"A standard plastic water bottle.",
-                 itemWinOrLose:"win", confidenceRating:"95%", createdAt: { seconds: 1696118400 },
-                 recyclingLocations:[{name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
-                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
-                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
-                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
-                  {name:"Recycle Center A", address:"123 Green St", lat:40.7128, long:-74.0060, distanceFromAddress:1.2},
-                  {name:"Recycle Center B", address:"456 Eco Rd", lat:40.7138, long:-74.0160, distanceFromAddress:2.5}]};
+
   return (
    <div className="h-screen bg-black text-zinc-100 overflow-hidden">
   <style dangerouslySetInnerHTML={{ __html: scrollbarStyles }} />
@@ -62,7 +65,7 @@ export default function ItemClientPage({ }){  //item }) {
         </div>
         
         <p className="text-zinc-400 mb-7" >Item Description: {item.itemDescription}</p>
-        <p className="text-zinc-400 space-y-7" >Gemini Analysis:</p>
+        <p className="text-zinc-400 space-y-7" >Recycling Details:</p>
         <p className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg" >{item.itemAnalysis}</p>
 
         <section className="space-y-2">
@@ -97,7 +100,7 @@ export default function ItemClientPage({ }){  //item }) {
         </div>
 
         {/* Recycling locations - Takes up remaining 40% */}
-        {item.recyclingLocations && item.recyclingLocations.length > 0 && (
+        {Array.isArray(item.recyclingLocations) && item.recyclingLocations.length > 0 && (
           <section className="h-[40%] flex flex-col overflow-hidden">
             <h2 className="text-xl font-semibold mb-3 flex-shrink-0">Recycling Locations</h2>
             <div className="flex-1 space-y-3 overflow-y-auto pr-2 custom-scrollbar">
