@@ -76,47 +76,54 @@ export default function ItemClientPage({ item }){
     <div className="h-full grid grid-cols-1 lg:grid-cols-2 gap-8">
       
       {/* LEFT SIDE - Item Details */}
-      <div className="h-full overflow-y-auto pr-4 custom-scrollbar">
+      <div className="h-full flex flex-col overflow-hidden">
         {/* Back Button and Title */}
-        <div className="flex items-center mb-5">
+        <div className="flex items-center mb-5 flex-shrink-0">
           <button 
             onClick={() => window.history.back()} 
-            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg "
+            className="flex items-center gap-2 text-zinc-500 hover:text-zinc-100 transition-colors bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M19 12H5M12 19l-7-7 7-7"/>
             </svg>
-            
           </button>
           <h1 className="text-4xl font-bold flex-1 text-center">"{item.itemName}" Recycling</h1>
         </div>
         
-        <p className="text-zinc-400 mb-7" >Item Description: {item.itemDescription}</p>
-        <p className="text-zinc-400 space-y-7" >Recycling Details:</p>
-        <p className="flex items-center gap-2 bg-zinc-900 border border-zinc-800 px-4 py-2 rounded-lg" >{item.itemAnalysis}</p>
-
-        <section className="space-y-2">
-          <p className="text-sm text-zinc-400">
-            Result:{" "}
-            <span className={item.itemWinOrLose === "win" ? "text-green-400" : "text-red-400"}>
-              {item.itemWinOrLose}
-            </span>
-          </p>
-          <p className="text-sm text-zinc-500">
-            Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
-          </p>
-        </section>
-
-        {/* Image */}
-        {item.itemPhoto && (
-          <div className="rounded-lg overflow-hidden border border-zinc-800">
-            <img
-              src={item.itemPhoto}
-              alt={item.itemName}
-              className="w-full h-64 object-cover"
-            />
+        {/* Description Section */}
+        <div className="mb-5 flex-shrink-0">
+          <p className="text-zinc-400 mb-2">Recycling Details:</p>
+          <div className="h-70 bg-zinc-900 border border-zinc-800 px-4 py-3 rounded-lg overflow-y-auto custom-scrollbar">
+            <p className="text-zinc-300">{item.itemDescription}</p>
           </div>
-        )}
+        </div>
+
+        {/* Bottom Section: Result/Confidence + Image */}
+        <div className="flex gap-6 mt-auto flex-shrink-0">
+          {/* Left: Result and Confidence */}
+          <section className="flex-1 space-y-2">
+            <p className="text-sm text-zinc-400">
+              Result:{" "}
+              <span className={item.itemWinOrLose === "win" ? "text-green-400" : "text-red-400"}>
+                {item.itemWinOrLose}
+              </span>
+            </p>
+            <p className="text-sm text-zinc-500">
+              Confidence rating: <span className="font-medium">{item.confidenceRating}</span>
+            </p>
+          </section>
+
+          {/* Right: Image */}
+          {item.itemPhoto && (
+            <div className="w-48 h-40 rounded-lg overflow-hidden border border-zinc-800 flex-shrink-0">
+              <img
+                src={item.itemPhoto}
+                alt={item.itemName}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {/* RIGHT SIDE - Map & Locations */}
