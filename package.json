@@ -13,7 +13,7 @@
     "cookies-next": "^6.1.1",
     "firebase": "^12.5.0",
     "firebase-admin": "^13.6.0",
-    "next": "16.0.1",
+    "next": "16.0.7",
     "react": "19.2.0",
     "react-dom": "19.2.0",
     "uuid": "^13.0.0"
